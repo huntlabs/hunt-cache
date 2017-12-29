@@ -270,11 +270,10 @@ struct rax
 		raxNode *p = head;
 		uint index = 0;
 		uint splitpos = 0;
+		numele++;
 		uint last = find(s , h , p , index , splitpos);
 
 		log_info("find " ,cast(string)s , " ",  last , " " , splitpos ," ", p ," " , h);
-
-
 
 		//not found
 		if (last > 0)
@@ -298,7 +297,6 @@ struct rax
 				head = n;
 
 				//4 inc
-				numele++;
 				numnodes++;
 
 				log_info("#1 ");
@@ -310,8 +308,6 @@ struct rax
 					// #2
 					if(h.size == 0)
 					{
-					
-
 
 						//1 new comp node
 						raxNode *n = raxNode.NewComp(last , true);
@@ -328,7 +324,6 @@ struct rax
 
 					
 						log_info("#2 " , p , " " , head);
-						numele++;
 						numnodes++;
 					}
 					//
@@ -352,43 +347,63 @@ struct rax
 						u1.iskey = h.iskey;
 						if(hasvalue)
 							u1.value = h.value;
-
-
+						numnodes++;
 
 						//2 add non-comp node
 						auto u2 = raxNode.New(2 , false);
 						u2.str[0] = s[$ - last];
 						u2.str[1] = h.str[splitpos];
-
+						numnodes++;
 
 						//3
-
-						auto u3 = raxNode.NewComp(h.size - splitpos - 1 , false);
-						memcpy(u3.str , h.str + splitpos + 1 ,h.size - splitpos -1);
-
-
+						uint u3_len = h.size - splitpos - 1;
+						raxNode *u3;
+						if( u3_len > 0)
+						{
+							u3 = raxNode.NewComp(h.size - splitpos - 1 , false);
+							memcpy(u3.str , h.str + splitpos + 1 ,h.size - splitpos -1);
+							numnodes++;
+						}
+						else
+						{
+							u3 = h.next;
+						}
 			
 
 						//4
-			
-						auto u4 = raxNode.NewComp(last - 1, false);
-						memcpy(u4.str  , s.ptr + s.length - last + 1 , last - 1);
-
-
-				
+						uint u4_len = last - 1;
+						raxNode *u4;
+						
 
 						//5
 						auto u5 = raxNode.NewComp(0 , true);
 						u5.iskey = true;
 						u5.value = data;
+						numnodes++;
+
+						if(u4_len > 0)
+						{		
+							u4 = raxNode.NewComp(last - 1, false);
+							memcpy(u4.str  , s.ptr + s.length - last + 1 , last - 1);
+							numnodes++;
+						}
+						else{
+							u4 = u5;
+						}
+						
+
+				
+
 
 					
 
 						//relation
-						u4.next = u5;
+						if(u4_len > 0)
+							u4.next = u5;
 
-
-						u3.next = h.next;
+						if( u3_len > 0)
+							u3.next = h.next;
+						
 						u2.nextChild(0 , u4);
 						u2.nextChild(1 , u3);
 						u1.next = u2;
@@ -398,6 +413,7 @@ struct rax
 							head = u1;
 							
 						raxNode.Free(h);
+						numnodes--;
 
 
 				}else{	
@@ -441,13 +457,14 @@ struct rax
 			if( i == r.size)
 			{	
 				pr = r;
+				r = r.next;
 				index = 0;
-				r = r.next;		
 				return find(s[(*pr).size .. $] , r , pr, index , splitpos);
 			}
 			else
 			{
 				splitpos = i;
+				index = 0;
 				return cast(uint)s.length - i;
 			}
 		}
@@ -457,8 +474,9 @@ struct rax
 			char *end = r.str + r.size;
 			while(p != end)
 			{
-				if( *p++ == s[0])
+				if( *p == s[0])
 					break;
+				p++;
 			}
 
 
@@ -471,9 +489,9 @@ struct rax
 			else
 			{
 				pr = r;
-				index = splitpos;
-				r = r.nextChild(splitpos);		
-				return find(s[1 .. $] , r , pr , index , i);
+				index = i ;
+				r = r.nextChild(index);		
+				return find(s[1 .. $] , r , pr , index , splitpos);
 			}
 		}
 
@@ -550,11 +568,12 @@ unittest{
 	void *p2 = cast(void*)0x2;
 	void *p3 = cast(void *)0x3;
 	void *p4 = cast(void *)0x4;
+	void *p5 = cast(void *)0x5;
 	r.Insert(cast(ubyte[])"test" , p1);
 	r.Insert(cast(ubyte[])"tester" , p2);
 	r.Insert(cast(ubyte[])"teacher" , p3);
-	//r.Insert(cast(ubyte[])"teachee" , p4);
-	//r.Insert(cast(ubyte[]) "testee" , p3);
+	r.Insert(cast(ubyte[])"teachee" , p4);
+	r.Insert(cast(ubyte[]) "testee" , p5);
 	r.show();
 }
 
