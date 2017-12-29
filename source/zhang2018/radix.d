@@ -215,6 +215,10 @@ pragma(inline, true):
 		return node;
 	}
 
+	static void Free(raxNode *n)
+	{
+		GC.free(n);
+	}
 
 
 
@@ -264,10 +268,12 @@ struct rax
 	{
 		raxNode *h = head;
 		raxNode *p = head;
+		uint index = 0;
 		uint splitpos = 0;
-		uint last = find(s , h , p , splitpos);
+		uint last = find(s , h , p , index , splitpos);
 
 		log_info("find " ,cast(string)s , " ",  last , " " , splitpos ," ", p ," " , h);
+
 
 
 		//not found
@@ -294,19 +300,18 @@ struct rax
 				//4 inc
 				numele++;
 				numnodes++;
+
+				log_info("#1 ");
 				return 0;
 			}
-
-
-			if(p.size > 0 )
+			else
 			{
-				if(p.iscompr)	// 压缩节点
-				{
 					//匹配到最后
 					// #2
 					if(h.size == 0)
 					{
-						bool ishead = (p == head);
+					
+
 
 						//1 new comp node
 						raxNode *n = raxNode.NewComp(last , true);
@@ -317,65 +322,97 @@ struct rax
 						// change value
 						h.value = data;
 
-						
+
 						n.next = h;
 						p.next = n;
 
-						if(ishead)
-							head = p;
-
+					
+						log_info("#2 " , p , " " , head);
 						numele++;
 						numnodes++;
 					}
 					//
-					else {
+					else if(h.iscompr) {
+					
 						//#3
 						//1 new comp node
+
+						
+						// @1 
+
+
+
+
+						log_info("last " , last);
+
+
 						bool hasvalue = h.iskey && !h.isnull;
 						auto u1 = raxNode.NewComp(splitpos , hasvalue);
 						memcpy(u1.str , h.str , splitpos);
 						u1.iskey = h.iskey;
-						u1.value = h.value;
+						if(hasvalue)
+							u1.value = h.value;
+
+
 
 						//2 add non-comp node
 						auto u2 = raxNode.New(2 , false);
-						u2.str[0] = h.str[splitpos];
-						u2.str[1] = s[$ - last];
+						u2.str[0] = s[$ - last];
+						u2.str[1] = h.str[splitpos];
+
 
 						//3
-						auto u3 = raxNode.NewComp(h.size - splitpos , false);
-						memcpy(u3.str , h.str + splitpos ,h.size - splitpos);
+
+						auto u3 = raxNode.NewComp(h.size - splitpos - 1 , false);
+						memcpy(u3.str , h.str + splitpos + 1 ,h.size - splitpos -1);
+
+
+			
 
 						//4
-						auto u4 = raxNode.NewComp(last , false);
-						memcpy(u4.str  , s.ptr + s.length - last , last);
+			
+						auto u4 = raxNode.NewComp(last - 1, false);
+						memcpy(u4.str  , s.ptr + s.length - last + 1 , last - 1);
+
+
+				
+
+						//5
+						auto u5 = raxNode.NewComp(0 , true);
+						u5.iskey = true;
+						u5.value = data;
+
+					
 
 						//relation
+						u4.next = u5;
 
 
+						u3.next = h.next;
+						u2.nextChild(0 , u4);
+						u2.nextChild(1 , u3);
+						u1.next = u2;
+						p.nextChild(index , u1);
 
-					}
+						if( h == head)
+							head = u1;
+							
+						raxNode.Free(h);
 
+
+				}else{	
+					;
 				}
-			}
-			else{
-
-
 			}
 
 		}
-	
-
 		return 0;
-
-
-
 	}
 
 	//remove
 
 	//find
-	uint find(const ubyte[] s , ref raxNode *r , ref raxNode *pr, ref uint splitpos)
+	uint find(const ubyte[] s , ref raxNode *r , ref raxNode *pr , ref uint index  , ref uint splitpos)
 	{
 		//find it
 		
@@ -404,8 +441,9 @@ struct rax
 			if( i == r.size)
 			{	
 				pr = r;
+				index = 0;
 				r = r.next;		
-				return find(s[pr.size .. $] , r , pr , splitpos);
+				return find(s[(*pr).size .. $] , r , pr, index , splitpos);
 			}
 			else
 			{
@@ -433,8 +471,9 @@ struct rax
 			else
 			{
 				pr = r;
+				index = splitpos;
 				r = r.nextChild(splitpos);		
-				return find(s[1 .. $] , r , pr  , i);
+				return find(s[1 .. $] , r , pr , index , i);
 			}
 		}
 
@@ -458,12 +497,17 @@ struct rax
 		{
 			++level;
 			for(uint i = 0 ; i < n.size ; i++)
+			{	
+	//			log_info("@" , i , " " ,n.nextChild(i));
 				Recursiveshow(n.nextChild(i) , level);
+			}
 		}
 	}
 
 	void show(raxNode *n , int level)
 	{
+		//write(n , " ");
+
 		for(uint i = 0 ; i < level ; i++)
 			write("\t");
 
@@ -501,13 +545,15 @@ unittest{
 
 
 
-
 	rax *r = rax.New();
 	void *p1 = cast(void *)0x1;
 	void *p2 = cast(void*)0x2;
 	void *p3 = cast(void *)0x3;
+	void *p4 = cast(void *)0x4;
 	r.Insert(cast(ubyte[])"test" , p1);
 	r.Insert(cast(ubyte[])"tester" , p2);
+	r.Insert(cast(ubyte[])"teacher" , p3);
+	//r.Insert(cast(ubyte[])"teachee" , p4);
 	//r.Insert(cast(ubyte[]) "testee" , p3);
 	r.show();
 }
