@@ -263,6 +263,29 @@ struct rax
 	}
 
 
+	bool Remove(const ubyte[] s)
+	{
+		raxNode *h = head;
+		raxNode *p = head;
+		uint index = 0;
+		uint splitpos = 0;
+		uint last = find(s , h , p , index , splitpos);
+		if(last > 0){
+			return false;
+		}
+		else{
+			if(h.iskey) {
+				h.iskey = false;
+				numele--;
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+	}
+
+
 	//insert
 	int Insert(const ubyte[] s , void *data )
 	{
@@ -339,7 +362,7 @@ struct rax
 						//1 new comp node
 
 
-
+						log_info("#3 " , getStr(h));
 				
 
 						raxNode *u1;
@@ -349,7 +372,9 @@ struct rax
 						u2.str[0] = s[$ - last];
 						u2.str[1] = h.str[splitpos];
 						numnodes++;
-						
+
+						log_info(getStr(u2));
+
 						bool hasvalue = h.iskey && !h.isnull;
 						if( splitpos > 0)
 						{
@@ -361,6 +386,7 @@ struct rax
 							numnodes++;
 						}
 						else{
+							log_info(" u1 = u2");
 							u1 = u2;
 							u1.iskey = h.iskey;
 							if(hasvalue)
@@ -381,6 +407,7 @@ struct rax
 						else
 						{
 							u3 = h.next;
+							log_info(" u3_len " , u3_len);
 						}
 			
 
@@ -403,13 +430,9 @@ struct rax
 						}
 						else{
 							u4 = u5;
+							log_info(" u4_len " , u4_len);
 						}
 						
-
-				
-
-
-					
 
 						//relation
 						if(u4_len > 0)
@@ -424,12 +447,14 @@ struct rax
 						if(splitpos > 0)
 							u1.next = u2;
 						
+						log_info(getStr(p) , index);
 						p.nextChild(index , u1);
 
 						if( h == head)
 							head = u1;
 							
 						raxNode.Free(h);
+						//Recursiveshow(p , 0);
 						numnodes--;
 
 
@@ -473,7 +498,11 @@ struct rax
 
 					i.nextChild(h.size , u1);
 					p.nextChild(index , i);
+
+					if(h == head)
+						head = i;
 					raxNode.Free(h);
+
 					numnodes--;
 				}
 			}
@@ -506,17 +535,24 @@ struct rax
 				if(hasdata)
 					u1.value = h.value;
 			
-				p.nextChild(index , u1);
+
 
 				auto u2 = raxNode.NewComp(h.size - splitpos , true);
 				memcpy(u2.str , h.str + splitpos , h.size - splitpos);
 				u2.iskey = true;
 				u2.value = data;
+
 				u2.next = h.next;
 				u1.next = u2;
 
 				raxNode.Free(h);
-
+				if(h == head)
+				{
+					head = u1;
+				}
+				else{
+					p.nextChild(index , u1);
+				}
 			}
 		}
 
@@ -561,7 +597,6 @@ struct rax
 			else 
 			{
 				splitpos = i;
-				index = 0;
 				return cast(uint)s.length - i;
 			}
 		}
@@ -588,6 +623,7 @@ struct rax
 				pr = r;
 				index = i ;
 				r = r.nextChild(index);	
+				log_info(" index " , index);
 				return find(s[1 .. $] , r , pr , index , splitpos);
 			}
 		}
@@ -678,6 +714,8 @@ unittest{
 	void *p9 = cast(void *)0x9;
 	void *p10 = cast(void *)0x10;
 	void *p11 = cast(void *)0x11;
+	void *p12 = cast(void *)0x12;
+	void *p13 = cast(void *)0x13;
 	r.Insert(cast(ubyte[])"test" , p1);
 	r.Insert(cast(ubyte[])"tester" , p2);
 	r.Insert(cast(ubyte[])"teacher" , p3);
@@ -685,10 +723,23 @@ unittest{
 	r.Insert(cast(ubyte[]) "testee" , p5);
 	r.Insert(cast(ubyte[])"testor" , p6);
 	r.Insert(cast(ubyte[])"tech" , p7);
+	r.Insert(cast(ubyte[])"teck" , p7);
 	r.Insert(cast(ubyte[])"tea" , p8);
 	r.Insert(cast(ubyte[])"tes" , p9);
 	r.Insert(cast(ubyte[])"teache" , p10);
 	r.Insert(cast(ubyte[])"teach" , p11);
+	r.Insert(cast(ubyte[])"t" , p12);
+	r.Insert(cast(ubyte[])"tttttttt" , p13);
+	r.Insert(cast(ubyte[])"1" , p13);
+	r.Insert(cast(ubyte[])"t2ttt4tttt" , p13);
+	r.Insert(cast(ubyte[])"tt3t4ttttt" , p13);
+	r.Insert(cast(ubyte[])"abcd" , p13);
+	r.Insert(cast(ubyte[])"dsdas" , p13);
+	r.Insert(cast(ubyte[])"test" , p13);
+	r.Insert(cast(ubyte[])"tea1" , p8);
+	r.Insert(cast(ubyte[])"tea3" , p8);
+	r.Insert(cast(ubyte[])"te4a" , p8);
 	r.show();
+
 }
 
