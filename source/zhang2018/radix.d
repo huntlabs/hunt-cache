@@ -308,12 +308,19 @@ struct rax
 			if(h.iskey) {
 				numele--;
 				h.iskey = false;
-				// #1 empty
 				if(h.size == 0)
 				{
 
 					if( p.iscompr)
 					{
+						//#1	最后一个节点为空	父节点压缩节点 且是key 则去除父节点			
+						//		   (x)
+						//			|			- 'test'       (x)
+						//		('test')	------------->		|
+						//			|							()
+						//			()
+						//
+
 						if(p.iskey)
 						{
 							h.iskey = true;
@@ -330,8 +337,72 @@ struct rax
 							}
 							numnodes -= 1;
 							raxNode.Free(p);
-							log_info("#####r0 0");
+							log_info("#####r1");
 						}
+						//#2	最后一个节点为空	父节点是压缩节点 不是key 父父节点必须是非压缩节点  
+						//		   (t)
+						//			|
+						//		   (A)
+						//			|
+						//		  ['xyz']
+						//		   /  \				- 'test'
+						//		 (B)	('test')  ---------------->	
+						//    	  |		|			
+						//		 (C)   ()
+						//
+						//
+						//		#1  当['xy']	 size == 2
+						//				#1 当['xy']不是key，A为压缩节点 && 当B为压缩节点 且不是key,合并三项
+						//		   (t)
+						//			|
+						//		   (A)
+						//			|
+						//		  ['xy']
+						//		   /  \				- 'test'				(t)
+						//		 (B)	('test')  ---------------->			|
+						//    	  |		|								(A + 'x' + B)
+						//		 (C)   ()									|
+						//													(C)
+						//
+						//				#2 当['xy']不是key，A为压缩节点 , 合并两项
+						//		   (t)
+						//			|
+						//		   (A)
+						//			|										
+						//		  ['xy']									
+						//		   /  \				- 'test'				(t)
+						//		 (B)	('test')  ---------------->			|
+						//    	  |		|								( A  + 'x')
+						//		 (C)   ()									|
+						//													(B)
+						//													|
+						//													(C)
+						//
+						//				#3 当B为压缩节点 且不是key ， 合并两项
+						//		   (t)
+						//			|
+						//		   (A)
+						//			|										(t)
+						//		  ['xy']									|
+						//		   /  \				- 'test'				(A)
+						//		 (B)	('test')  ---------------->			|
+						//    	  |		|								( 'x' + B)
+						//		 (C)   ()									|
+						//													(C)
+						//
+						//				#4 当都不能合并时
+						//		   (t)
+						//			|
+						//		   (A)
+						//			|										(t)
+						//		  ['xy']									|
+						//		   /  \				- 'test'				(A)
+						//		 (B)	('test')  ---------------->			|
+						//    	  |		|								  ( 'x')
+						//		 (C)   ()									|
+						//													(B)
+						//													|
+						//													(C)
 						else // pp exist. & pp is non compr
 						{
 							//pp
@@ -339,14 +410,13 @@ struct rax
 							{
 								head = h;
 								numnodes -= 1;
-								log_info("####r000");
+								log_info("#####r2");
 							}
 							else{
 								raxItem t1 = ts[$ - 2];
 								raxNode *r1 = ts[$ - 2].n;
 								if( r1.size == 2){
-
-
+								
 									raxNode *pp = null;
 									if(ts.length >= 3)
 										pp = ts[$ - 3].n;
@@ -384,7 +454,7 @@ struct rax
 										raxNode.Free(h);
 										raxNode.Free(r1);
 										numnodes -= 4;
-										log_info("####r0 00");
+										log_info("#####r211");
 
 									}
 									else if(ppCombine)
@@ -414,7 +484,7 @@ struct rax
 										raxNode.Free(r1);
 										numnodes -= 3;
 										
-										log_info("####r0 01");
+										log_info("#####r212");
 									}
 									else if(nhCombie)
 									{
@@ -446,7 +516,7 @@ struct rax
 										raxNode.Free(h);
 										raxNode.Free(r1);
 										numnodes -= 3;
-										log_info("####r0 02");
+										log_info("#####r213");
 									}
 									else{
 										bool hasdata = r1.iskey && !r1.isnull;
@@ -470,11 +540,23 @@ struct rax
 										raxNode.Free(p);
 										raxNode.Free(r1);
 										numnodes -= 2;
-										log_info("####r0 03");
+										log_info("#####r214");
 									}
 
 
 								}
+								//		#1  当['xyz'] 的size > 2
+								//				
+								//		   (t)										(t)
+								//			|										 |
+								//		   (A)										(A)
+								//			|										 |
+								//		  ['xyz']                                   ['xz']
+								//		   /  \    \ 				- 'test'	    /   \
+								//		 (B)('test') (D)  ---------------->		  ('B')   (D)
+								//    	  |		|								
+								//		 (C)   ()									
+								//													
 								else if (r1.size > 2){
 
 									bool hasdata = r1.iskey && !r1.isnull;
@@ -524,11 +606,11 @@ struct rax
 									raxNode.Free(h);
 									raxNode.Free(p);
 									numnodes -= 2;
-									log_info("####r0 2");
+									log_info("####r22");
 
 								}
 								else{
-									log_info("####r0 y");
+									log_error("####r23 none exist");
 								}
 
 
@@ -538,6 +620,66 @@ struct rax
 
 						}
 					}
+					//	#3  当父节点为非压缩节点
+					//
+					//
+					//			 (A)
+					//			  |					A+'y'
+					//			['xyz']			----------->
+					//			 / |  \
+					//			(C) () (D)
+					//
+					//
+					//
+					//		#1 当['xy'] 的size == 2时
+					//				
+					//				当#1 ['xy']非key，且(C)非key , 合并三项
+					//			 (t)
+					//			  |
+					//			 (A)
+					//			  |					A+'y'			   (t)
+					//			['xy']			----------->      	 	|
+					//			 / |								(A + 'x' + C)
+					//			(C) () 									|
+					//			 |										(D)
+					//			(D)		
+					//
+					//		
+					//				
+					//				当#2 ['xy']非key , 合并两项
+					//			 (t)
+					//			  |
+					//			 (A)
+					//			  |					A+'y'			   (t)
+					//			['xy']			----------->      	 	|
+					//			 / |								(A + 'x' )
+					//			(C) () 									|
+					//			 |										(C)
+					//			(D)										|
+					//													(D)
+					//				当#3 (C)非key , 合并两项
+					//			 (t)
+					//			  |									   (t)
+					//			 (A)								    |
+					//			  |					A+'y'			   (A)
+					//			['xy']			----------->      	 	|
+					//			 / |								('x' + C)
+					//			(C) () 									|
+					//			 |										(D)
+					//			(D)	
+					//
+					//			   当#4 无合并
+					//											
+					//			 (t)
+					//			  |									   (t)
+					//			 (A)								    |
+					//			  |					A+'y'			   (A)
+					//			['xy']			----------->      	 	|
+					//			 / |								  ('x')
+					//			(C) () 									|
+					//			 |										(C)
+					//			(D)										|	
+					//													(D)
 					else if(!p.iscompr)
 					{
 						// noncompr to compr
@@ -582,7 +724,7 @@ struct rax
 
 									numnodes -= 3;
 
-									log_info("####r1");
+									log_info("#####r311");
 								}
 								// #2 
 								else if(ppCombine)
@@ -610,7 +752,7 @@ struct rax
 									raxNode.Free(h);
 									numnodes -= 2;
 
-									log_info("####r2");
+									log_info("#####r312");
 								}
 								else if(nhCombie)
 								{
@@ -635,7 +777,7 @@ struct rax
 									raxNode.Free(p);
 									raxNode.Free(h);
 									numnodes -= 2;
-									log_info("####r3");
+									log_info("#####r313");
 								}
 								// p.iskey or no combine.
 								else{
@@ -659,10 +801,20 @@ struct rax
 									raxNode.Free(h);
 									raxNode.Free(p);
 									numnodes -= 1;
-									log_info("#####r4");
+									log_info("#####r314");
 							}
 
 						}
+						//		#2 当['xyz'] 的size > 2时
+						//			 (A)								(A)
+						//			  |					A+'y'			 |
+						//			['xyz']			----------->		['xz']
+						//			 / |  \								/ \
+						//			(C) () (D)						  (C) (D)
+						//
+						//
+						//
+
 						else if(p.size > 2){
 
 							bool hasdata = p.iskey && !p.isnull;
@@ -710,18 +862,24 @@ struct rax
 							raxNode.Free(h);
 							raxNode.Free(p);
 							numnodes--;
-							log_info("####rr");
+							log_info("#####r32");
 						}
 					}
 				}
 				// h.size > 0
 				else{
+					//	#4 节点是压缩节点 ， 则合并
+					//			  (A)								(A + 'test')
+					//				|								 	|
+					//			('test')		- 'test'				(B)
+					//			   |
+					//			  (B)		----------->      
+					//
+					//
+					//	#5 只是去掉一个值。
 
 					if(h.iscompr)
 					{
-
-						bool ppcombine = p.iscompr && !p.iskey;
-
 						bool hasdata = p.iskey && !p.isnull;
 						raxNode *u = raxNode.NewComp(p.size + h.size ,  hasdata);
 						u.iskey = p.iskey;
@@ -745,10 +903,10 @@ struct rax
 						numnodes--;
 						raxNode.Free(p);
 						raxNode.Free(h);
-						log_info("####rx");
+						log_info("#####r4");
 					}
 					else{
-						log_info("####ry");
+						log_info("#####r5");
 					}
 
 				}
@@ -1006,6 +1164,14 @@ struct rax
 
 		}else{
 			//	#5	完全匹配，只要改个值 即可。
+			//							'te'
+			//				('te')	------------->	 the same
+			//				  |
+			//				['as']
+			//				 /  \
+			//		  ('cher')  ('t')
+			//			 |		  |
+			//			()		 ()
 			if(splitpos == 0)
 			{
 				bool hasdata = (h.iskey && !h.isnull);
@@ -1030,7 +1196,15 @@ struct rax
 
 			}
 			//	#6	完全匹配压缩节点前半部分。 分割即可。
+			//					'te'
+			//	('test')	--------->		('te')
+			//		|						  |
+			//	   (x)						('st')
+			//								  |
+			//								 (x)
+			//
 			else if(h.iscompr) {
+
 
 				bool hasdata = (h.iskey && !h.isnull);
 				auto u1 = raxNode.NewComp(splitpos , hasdata);
@@ -1273,6 +1447,9 @@ unittest{
 		r.Insert(cast(ubyte[])"te4a" , p21);
 		r.Insert(cast(ubyte[])"t2ttt4t" , p22);
 
+
+
+	
 		r.show();
 
 		r.Remove(cast(ubyte[])"test" );
