@@ -301,7 +301,7 @@ struct rax
 		uint splitpos = 0;
 		uint last = find(s , h , p , index , splitpos , ts);
 		if(last > 0){
-			log_error("remove " ,s , " " ,last);
+			log_error("remove " , cast(string)s , " " ,last);
 			return false;
 		}
 		else{
@@ -316,9 +316,12 @@ struct rax
 					{
 						if(p.iskey)
 						{
+							h.iskey = true;
+							h.value = p.value;
 							if(p == head)
 							{
 								head = h;
+							
 							}
 							else
 							{
@@ -329,10 +332,207 @@ struct rax
 							raxNode.Free(p);
 							log_info("#####r0 0");
 						}
-						else // pp exist.
+						else // pp exist. & pp is non compr
 						{
 							//pp
-							raxItem item = ts[$ - 2];
+							if( p == head)
+							{
+								head = h;
+								numnodes -= 1;
+								log_info("####r000");
+							}
+							else{
+								raxItem t1 = ts[$ - 2];
+								raxNode *r1 = ts[$ - 2].n;
+								if( r1.size == 2){
+
+
+									raxNode *pp = null;
+									if(ts.length >= 3)
+										pp = ts[$ - 3].n;
+									bool ppCombine =  pp && pp.iscompr && !r1.iskey;
+									raxNode *nh = r1.nextChild(r1.size - 1 - t1.index);
+									bool nhCombie = nh.iscompr && !nh.iskey;
+
+
+
+									if( ppCombine && nhCombie)
+									{
+										bool hasdata = pp.iskey && !pp.isnull;
+										raxNode *u = raxNode.NewComp(pp.size + nh.size + 1 , hasdata);
+										memcpy(u.str , pp.str , pp.size);
+										memcpy(u.str + pp.size , r1.str + r1.size - 1 - t1.index , 1);
+										memcpy(u.str + pp.size + 1 , nh.str ,  nh.size);
+
+										u.iskey = pp.iskey;
+										if(hasdata)
+										{
+											u.value = pp.value;
+										}
+										u.next( nh.next);
+										if( pp == head)
+										{
+											head = u;
+										}
+										else{
+											raxItem item = ts[$ - 4];
+											item.n.nextChild(item.index , u);
+										}
+										raxNode.Free(nh);
+										raxNode.Free(pp);
+										raxNode.Free(p);
+										raxNode.Free(h);
+										raxNode.Free(r1);
+										numnodes -= 4;
+										log_info("####r0 00");
+
+									}
+									else if(ppCombine)
+									{
+										bool hasdata = r1.iskey && !r1.isnull;
+										raxNode *u = raxNode.NewComp(pp.size + 1 , hasdata);
+										memcpy(u.str , pp.str , pp.size);
+										memcpy(u.str + pp.size , p.str+ p.size - 1 - t1.index , 1);
+										u.next(nh);
+										u.iskey = r1.iskey;
+										if(hasdata)
+										{
+											u.value = r1.value;
+										}
+										
+										if( pp == head)
+										{
+											head = u;
+										}
+										else{
+											raxItem item = ts[$ - 4];
+											item.n.nextChild(item.index , u);
+										}
+										raxNode.Free(pp);
+										raxNode.Free(p);
+										raxNode.Free(h);
+										raxNode.Free(r1);
+										numnodes -= 3;
+										
+										log_info("####r0 01");
+									}
+									else if(nhCombie)
+									{
+										bool hasdata = r1.iskey && !r1.isnull;
+										raxNode* u = raxNode.NewComp(1 + nh.size , false);
+										memcpy(u.str  , r1.str + r1.size - 1 - t1.index , 1);
+										memcpy(u.str + 1,  nh.str , nh.size);
+										u.iskey = r1.iskey;
+
+										if(hasdata)
+										{
+											u.value = r1.value;
+										}
+
+										u.next(nh.next);
+										
+										if( r1 == head)
+										{
+											head = u;
+										}
+										else
+										{
+											raxItem item = ts[$ - 3];
+											log_info(getStr(item.n));
+											item.n.nextChild(item.index , u);
+										}
+										raxNode.Free(nh);
+										raxNode.Free(p);
+										raxNode.Free(h);
+										raxNode.Free(r1);
+										numnodes -= 3;
+										log_info("####r0 02");
+									}
+									else{
+										bool hasdata = r1.iskey && !r1.isnull;
+										raxNode *n = raxNode.NewComp(1 , hasdata);
+										n.iskey = r1.iskey;
+										if(hasdata)
+											n.value = r1.value;
+										n.str[0] = r1.str[r1.size - 1 - t1.index];
+										n.next( r1.nextChild(r1.size - 1 - t1.index));
+										
+										if(r1 == head)
+										{
+											head = n;
+										}
+										else{
+											raxItem item = ts[$ - 3];
+											item.n.nextChild(item.index , n);
+										}
+										
+										raxNode.Free(h);
+										raxNode.Free(p);
+										raxNode.Free(r1);
+										numnodes -= 2;
+										log_info("####r0 03");
+									}
+
+
+								}
+								else if (r1.size > 2){
+
+									bool hasdata = r1.iskey && !r1.isnull;
+									raxNode *u = raxNode.New(r1.size - 1, hasdata);
+									u.iskey = r1.iskey;
+									if(hasdata)
+									{
+										u.value = r1.value;
+									}
+									
+									log_info("index " , index , " " , r1.size);
+									
+									if( t1.index == 0)
+									{
+										memcpy(u.str , r1.str + 1 , r1.size - 1 );
+									}
+									else if(t1.index == r1.size - 1)
+									{	
+										memcpy(u.str , r1.str , r1.size - 1);
+									}
+									else
+									{
+										memcpy(u.str , r1.str  , t1.index);
+										memcpy(u.str + t1.index  , r1.str + t1.index + 1, r1.size - t1.index -1);
+									}
+
+									log_info(getStr(u));
+
+									for( uint i , j  = 0 ; i < r1.size ; )
+									{
+										if( i != t1.index)
+											u.orgin[j++] = r1.orgin[i++];
+										else
+											i++;
+									}
+
+									if(r1 == head)
+									{
+										head = u;
+									}
+									else{
+										raxItem i = ts[$ - 3];
+										i.n.nextChild(i.index , u);
+									}
+									
+									raxNode.Free(r1);
+									raxNode.Free(h);
+									raxNode.Free(p);
+									numnodes -= 2;
+									log_info("####r0 2");
+
+								}
+								else{
+									log_info("####r0 y");
+								}
+
+
+							}
 
 
 
@@ -345,20 +545,26 @@ struct rax
 						if(p.size == 2){
 						
 								raxNode *pp = ts[$ - 2].n;
-								bool ppCombine = ts.length >= 2 && pp.iscompr && !pp.iskey;
+								bool ppCombine = ts.length >= 2 && pp.iscompr && !p.iskey;
 								raxNode *nh = p.nextChild(p.size - 1 - index);
 
 								log_info("nh " , getStr(nh));
 								bool nhCombie = nh.iscompr && !nh.iskey;
-
+								
 								log_info(ppCombine , " " , nhCombie);
+								
 								// #1 合并3个
 								if( ppCombine && nhCombie)
 								{
-									raxNode *u = raxNode.NewComp(pp.size + nh.size + 1 , false);
+									bool hasdata = pp.iskey && !pp.isnull;
+									raxNode *u = raxNode.NewComp(pp.size + nh.size + 1 , hasdata);
 									memcpy(u.str , pp.str , pp.size);
 									memcpy(u.str + pp.size , p.str + p.size - 1 - index , 1);
 									memcpy(u.str + pp.size + 1 , nh.str ,  nh.size);
+
+									u.iskey = pp.iskey;	
+									if(hasdata)
+										u.value = pp.value;
 
 									u.next( nh.next);
 									if( pp == head)
@@ -381,11 +587,16 @@ struct rax
 								// #2 
 								else if(ppCombine)
 								{
-									raxNode *u = raxNode.NewComp(pp.size + 1 , false);
+									
+									bool hasdata = pp.iskey && !pp.isnull;
+									raxNode *u = raxNode.NewComp(pp.size + 1 , hasdata);
 									memcpy(u.str , pp.str , pp.size);
 									memcpy(u.str + pp.size , p.str+ p.size - 1 - index , 1);
 									u.next(nh);
-
+									u.iskey = pp.iskey;
+									if(hasdata)
+										u.value = pp.value; 
+									
 									if( pp == head)
 									{
 										head = u;
@@ -403,12 +614,14 @@ struct rax
 								}
 								else if(nhCombie)
 								{
-									raxNode* u = raxNode.NewComp(1 + nh.size , false);
+									bool hasdata = p.iskey && !p.isnull;
+									raxNode* u = raxNode.NewComp(1 + nh.size , hasdata);
 									memcpy(u.str  , p.str + p.size - 1 - index , 1);
 									memcpy(u.str + 1,  nh.str , nh.size);
-
+									u.iskey = p.iskey;
 									u.next(nh.next);
-
+									if(hasdata)
+										u.value = p.value;
 									if( p == head)
 									{
 										head = u;
@@ -426,7 +639,6 @@ struct rax
 								}
 								// p.iskey or no combine.
 								else{
-
 									bool hasdata = p.iskey && !p.isnull;
 									raxNode *n = raxNode.NewComp(1 , hasdata);
 									n.iskey = p.iskey;
@@ -437,7 +649,7 @@ struct rax
 									
 									if(p == head)
 									{
-										p = n;
+										head = n;
 									}
 									else{
 										raxItem item = ts[$ - 2];
@@ -534,6 +746,9 @@ struct rax
 						raxNode.Free(p);
 						raxNode.Free(h);
 						log_info("####rx");
+					}
+					else{
+						log_info("####ry");
 					}
 
 				}
@@ -659,7 +874,7 @@ struct rax
 						if( u3_len > 0 )
 						{
 							//combin
-							if(h.next.size > 0 && h.next.iscompr)
+							if(h.next.size > 0 && h.next.iscompr && !h.next.iskey)
 							{
 								u3 = raxNode.NewComp(u3_len + h.next.size , h.next.iskey && !h.next.isnull);
 								memcpy(u3.str , h.str + splitpos + 1 , h.size - splitpos -1);
@@ -795,7 +1010,10 @@ struct rax
 			{
 				bool hasdata = (h.iskey && !h.isnull);
 				if(hasdata) {
+					
 					h.value = data;
+					if(h.iskey)		//replaced
+						numele--;
 				}
 				else{
 					raxNode *u;
@@ -817,6 +1035,7 @@ struct rax
 				bool hasdata = (h.iskey && !h.isnull);
 				auto u1 = raxNode.NewComp(splitpos , hasdata);
 				memcpy(u1.str , h.str , splitpos);
+				u1.iskey = h.iskey;
 				if(hasdata)
 					u1.value = h.value;
 				numnodes++;
@@ -1014,30 +1233,45 @@ unittest{
 		void *p11 = cast(void *)0x11;
 		void *p12 = cast(void *)0x12;
 		void *p13 = cast(void *)0x13;
+		void *p14 = cast(void *)0x14;
+		void *p15 = cast(void *)0x15;
+		void *p16 = cast(void *)0x16;
+		void *p17 = cast(void *)0x17;
+		void *p18 = cast(void *)0x18;
+		void *p19 = cast(void *)0x19;
+		void *p20 = cast(void *)0x20;
+		void *p21 = cast(void *)0x21;
+		void *p22 = cast(void *)0x22;
+
 		r.Insert(cast(ubyte[])"test" , p1);
 		r.Insert(cast(ubyte[])"tester" , p2);
 		r.Insert(cast(ubyte[])"teacher" , p3);
 		r.Insert(cast(ubyte[])"teachee" , p4);
-		r.Insert(cast(ubyte[]) "testee" , p5);
+		r.Insert(cast(ubyte[])"testee" , p5);
+
 		r.Insert(cast(ubyte[])"testor" , p6);
 		r.Insert(cast(ubyte[])"tech" , p7);
 		r.Insert(cast(ubyte[])"teck" , p7);
 		r.Insert(cast(ubyte[])"tea" , p8);
 		r.Insert(cast(ubyte[])"tes" , p9);
 		r.Insert(cast(ubyte[])"teache" , p10);
+
 		r.Insert(cast(ubyte[])"teach" , p11);
 		r.Insert(cast(ubyte[])"t" , p12);
 		r.Insert(cast(ubyte[])"tttttttt" , p13);
 		r.Insert(cast(ubyte[])"1" , p13);
-		r.Insert(cast(ubyte[])"t2ttt4tttt" , p13);
-		r.Insert(cast(ubyte[])"tt3t4ttttt" , p13);
-		r.Insert(cast(ubyte[])"abcd" , p13);
-		r.Insert(cast(ubyte[])"dsdas" , p13);
-		r.Insert(cast(ubyte[])"test" , p13);
-		r.Insert(cast(ubyte[])"tea1" , p8);
-		r.Insert(cast(ubyte[])"tea3" , p8);
-		r.Insert(cast(ubyte[])"te4a" , p8);
-		r.Insert(cast(ubyte[])"t2ttt4t" , p8);
+		r.Insert(cast(ubyte[])"t2ttt4tttt" , p14);
+		r.Insert(cast(ubyte[])"tt3t4ttttt" , p15);
+
+		r.Insert(cast(ubyte[])"abcd" , p16);
+		r.Insert(cast(ubyte[])"dsdas" , p17);
+		r.Insert(cast(ubyte[])"test" , p18);
+		r.Insert(cast(ubyte[])"tea1" , p19);
+		r.Insert(cast(ubyte[])"tea3" , p20);
+
+
+		r.Insert(cast(ubyte[])"te4a" , p21);
+		r.Insert(cast(ubyte[])"t2ttt4t" , p22);
 
 		r.show();
 
@@ -1045,59 +1279,32 @@ unittest{
 		r.Remove(cast(ubyte[])"tester" );
 		r.Remove(cast(ubyte[])"teacher" );
 		r.Remove(cast(ubyte[])"teachee" );
-		r.Remove(cast(ubyte[]) "testee" );
-
-		r.show();
-
+		r.Remove(cast(ubyte[])"testee" );
 
 		r.Remove(cast(ubyte[])"testor" );
-
 		r.Remove(cast(ubyte[])"tech" );
-	
 		r.Remove(cast(ubyte[])"teck" );
-
-	
-		r.show();
-
 		r.Remove(cast(ubyte[])"tea" );
-
-		r.show();
-
-		//r.Remove(cast(ubyte[])"tes" );
-		//r.Remove(cast(ubyte[])"teache" );
-		//r.Remove(cast(ubyte[])"teach" );
-
+		r.Remove(cast(ubyte[])"tes" );
+		r.Remove(cast(ubyte[])"teache");
 	
-		//r.show();
-		/*
+		r.Remove(cast(ubyte[])"teach" );
 		r.Remove(cast(ubyte[])"t" );
-
-		r.show();
-
 		r.Remove(cast(ubyte[])"tttttttt" );
-
-		r.show();
-
 		r.Remove(cast(ubyte[])"1" );
-		r.show();
-
 		r.Remove(cast(ubyte[])"t2ttt4tttt" );
-		r.Remove(cast(ubyte[])"tt3t4ttttt" );
-	
-		r.show();
+		r.Remove(cast(ubyte[])"tt3t4ttttt");
 
 		r.Remove(cast(ubyte[])"abcd" );
-
 		r.Remove(cast(ubyte[])"dsdas" );
+		r.Remove(cast(ubyte[])"tea1" );
+		r.Remove(cast(ubyte[])"tea3" );
+
+		r.Remove(cast(ubyte[])"te4a" );
+		r.Remove(cast(ubyte[])"t2ttt4t" );
 
 		r.show();
 
-		r.Remove(cast(ubyte[])"test" );
-		r.Remove(cast(ubyte[])"tea1"  );
-		r.Remove(cast(ubyte[])"tea3" );
-		r.Remove(cast(ubyte[])"te4a" );
-		r.Remove(cast(ubyte[])"t2ttt4t" );
-		r.show();*/
 	}
 
 	void test2()
@@ -1168,20 +1375,21 @@ unittest{
 	
 		r.Remove(cast(ubyte[])"test" );
 
-		r.show();
+
 
 		r.Remove(cast(ubyte[])"tester" );
-		r.show();
 		r.Remove(cast(ubyte[])"fuck" );
-		r.Remove(cast(ubyte[])"fucking" );
-		r.Remove(cast(ubyte[])"you");
 
+		r.Remove(cast(ubyte[])"fucking" );
+		r.show();
+		r.Remove(cast(ubyte[])"you");
+		r.show();
 
 
 	}
-
+	test1();
 	test4();
-	//test2();
-	//test3();
+	test2();
+	test3();
 }
 
