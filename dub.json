@@ -1,5 +1,6 @@
 {
     "name": "radix-tree",
+	"targetType":"executable",
     "dependencies": {
     	"common":{"path":"../common"}
     }

@@ -4,6 +4,7 @@ module zhang2018.radix;
 import std.stdio;
 import core.memory;
 import core.stdc.string;
+import core.stdc.stdlib;
 
 import zhang2018.common.Log;
 
@@ -157,11 +158,12 @@ pragma(inline, true):
 	//alloc non-compr node
 	static raxNode* New(uint children , bool hasdata)
 	{
+
 		long nodesize = raxNode.sizeof + children + (raxNode*).sizeof * children;
 		if(hasdata)
 			nodesize += (void*).sizeof;
 
-		raxNode *n = cast(raxNode*)GC.malloc(nodesize);
+		raxNode *n = cast(raxNode*)malloc(nodesize);
 		if( n == null) return null;
 
 		n.iskey = false;
@@ -174,11 +176,12 @@ pragma(inline, true):
 
 	static raxNode *NewComp(uint length , bool hasdata)
 	{
+
 		long nodesize = raxNode.sizeof + length + (raxNode *).sizeof;
 		if(hasdata)
 			nodesize += (void *).sizeof;
 
-		raxNode *n = cast(raxNode*)GC.malloc(nodesize);
+		raxNode *n = cast(raxNode*)malloc(nodesize);
 		if( n == null) return null;
 
 		n.iskey = false;
@@ -198,7 +201,8 @@ pragma(inline, true):
 		if(hasdata)
 			nodesize += (void *).sizeof;
 
-		auto node = cast(raxNode*)GC.realloc(n , nodesize);
+
+		auto node = cast(raxNode*)realloc(n , nodesize);
 		if(node == null) return null;
 		node.iscompr = false;
 		return node;
@@ -207,11 +211,12 @@ pragma(inline, true):
 
 	static raxNode *RenewComp(raxNode *n , uint length , bool hasdata)
 	{
+
 		long nodesize= raxNode.sizeof + length + (raxNode*).sizeof * length;
 		if(hasdata)
 			nodesize += (void *).sizeof;
-
-		auto node = cast(raxNode*) GC.realloc(n , nodesize);
+	
+		auto node = cast(raxNode*) realloc(n , nodesize);
 		if( node == null) return null;
 		node.iscompr = true;
 		return node;
@@ -219,7 +224,7 @@ pragma(inline, true):
 
 	static void Free(raxNode *n)
 	{
-		GC.free(n);
+		free(n);
 	}
 
 
@@ -247,7 +252,7 @@ struct rax
 
 	static rax * New()
 	{
-		rax *r = cast(rax *)GC.malloc(rax.sizeof);
+		rax *r = cast(rax *)malloc(rax.sizeof);
 		if (r == null) return null;
 		
 		r.numele = 0;
@@ -290,7 +295,7 @@ struct rax
 	static void Free(rax *r)
 	{
 		r.RecursiveFree(r.head);
-		GC.free(r);
+		free(r);
 	}
 
 
@@ -461,15 +466,15 @@ struct rax
 									}
 									else if(ppCombine)
 									{
-										bool hasdata = r1.iskey && !r1.isnull;
+										bool hasdata = pp.iskey && !pp.isnull;
 										raxNode *u = raxNode.NewComp(pp.size + 1 , hasdata);
 										memcpy(u.str , pp.str , pp.size);
 										memcpy(u.str + pp.size , r1.str+ r1.size - 1 - t1.index , 1);
 										u.next(nh);
-										u.iskey = r1.iskey;
+										u.iskey = pp.iskey;
 										if(hasdata)
 										{
-											u.value = r1.value;
+											u.value = pp.value;
 										}
 										
 										if( pp == head)
@@ -575,6 +580,7 @@ struct rax
 									if( t1.index == 0)
 									{
 										memcpy(u.str , r1.str + 1 , r1.size - 1 );
+
 									}
 									else if(t1.index == r1.size - 1)
 									{	
@@ -604,16 +610,15 @@ struct rax
 									}
 									else{
 										raxItem i = ts[$ - 3];
-										log_info(i.index , " ",  getStr(i.n));
+										
 										i.n.nextChild(i.index , u);
-										Recursiveshow(u ,0);
-										Recursiveshow(i.n ,0);
-									
+										
 									}
 									
 									raxNode.Free(r1);
 									raxNode.Free(h);
 									raxNode.Free(p);
+				
 									numnodes -= 2;
 									log_info("####r22");
 
@@ -621,12 +626,7 @@ struct rax
 								else{
 									log_error("####r23 none exist");
 								}
-
-
 							}
-
-
-
 						}
 					}
 					//	#3  当父节点为非压缩节点
@@ -921,8 +921,6 @@ struct rax
 					}
 
 				}
-
-
 				return true;			
 			}
 			else{
@@ -971,6 +969,7 @@ struct rax
 				numnodes++;
 
 				log_info("####1");
+				return 1;
 			}
 			else
 			{
@@ -989,7 +988,7 @@ struct rax
 						memcpy(n.str , s[ $ - last .. $].ptr , last);
 						n.iskey = true;
 						n.value = h.value;
-
+						
 						h.value = data;
 			
 						n.next = h;
@@ -998,6 +997,7 @@ struct rax
 						numnodes++;
 
 						log_info("####2");
+						return 1;
 					}
 					//	#3	匹配到压缩节点，1 必须截断前部分。2 取原字符及压缩节点匹配字符构成 两个字符的 非压缩节点。 
 					//			3 非压缩节点 两个子节点 分别指向 截断后半部分 及 原字符后半部分
@@ -1015,12 +1015,13 @@ struct rax
 
 						raxNode *u1;
 
-						auto u2 = raxNode.New(2 , false);
+						bool hasvalue = h.iskey && !h.isnull;
+						auto u2 = raxNode.New(2 , hasvalue && splitpos <= 0);
 						u2.str[0] = s[$ - last];
 						u2.str[1] = h.str[splitpos];
 						numnodes++;
 
-						bool hasvalue = h.iskey && !h.isnull;
+						
 						if( splitpos > 0)
 						{
 							u1 = raxNode.NewComp(splitpos , hasvalue);
@@ -1114,8 +1115,9 @@ struct rax
 							
 						raxNode.Free(h);
 						numnodes--;
-
+						
 						log_info("####3");
+						return 1;
 
 				}
 				// 	#4	都不匹配非压缩节点的任何子节点 1 增加该字符 2 截断原字符
@@ -1131,10 +1133,9 @@ struct rax
 					bool hasdata = !h.isnull && h.iskey;
 					auto i = raxNode.New( h.size + 1 , hasdata);
 					i.iskey = h.iskey;
-					i.isnull = h.isnull;
 					if(hasdata)
 					{
-						h.value = i.value;
+						i.value = h.value;	//modify 
 					}
 
 					numnodes++;
@@ -1171,6 +1172,7 @@ struct rax
 					raxNode.Free(h);
 					numnodes--;
 					log_info("####4");
+					return 1;
 				}
 			}
 
@@ -1192,19 +1194,30 @@ struct rax
 					h.value = data;
 					if(h.iskey)		//replaced
 						numele--;
+					else
+						assert(0);
+
+					log_info("####50");
+					return 0;
+
 				}
 				else{
 					raxNode *u;
 					if(h.iscompr)
 						u = raxNode.RenewComp(h , h.size , true);
 					else
+					{
 						u = raxNode.Renew(h , h.size ,true);
+					}
 					u.value = data;
 					u.iskey = true;
 					p.nextChild(index , u);
+
+					log_info("####51");
+					return 1;
 				}
 
-				log_info("####5");
+
 
 			}
 			//	#6	完全匹配压缩节点前半部分。 分割即可。
@@ -1247,10 +1260,13 @@ struct rax
 				}
 
 				log_info("####6");
+				return 1;
+			}else{
+				writeln("assert");
+				assert(0);
 			}
 		}
 
-		return 0;
 	}
 
 	//remove
@@ -1368,8 +1384,7 @@ struct rax
 
 		for(uint i = 0 ; i < level ; i++)
 			write("\t");
-
-		write("key:" , n.iskey  , n.iscompr ? " (" : " [");
+		write(" key:" , n.iskey  , n.iscompr ? " (" : " [");
 
 		for(uint i = 0 ; i < n.size ; i++)
 			write(n.str[i]);
@@ -1434,13 +1449,21 @@ unittest{
 		r.Insert(cast(ubyte[])"teacher" , p3);
 		r.Insert(cast(ubyte[])"teachee" , p4);
 		r.Insert(cast(ubyte[])"testee" , p5);
-
 		r.Insert(cast(ubyte[])"testor" , p6);
 		r.Insert(cast(ubyte[])"tech" , p7);
+
+
+
 		r.Insert(cast(ubyte[])"teck" , p7);
+
 		r.Insert(cast(ubyte[])"tea" , p8);
+
 		r.Insert(cast(ubyte[])"tes" , p9);
+
 		r.Insert(cast(ubyte[])"teache" , p10);
+
+
+
 
 		r.Insert(cast(ubyte[])"teach" , p11);
 		r.Insert(cast(ubyte[])"t" , p12);
@@ -1490,8 +1513,7 @@ unittest{
 		r.Remove(cast(ubyte[])"tea3" );
 
 		r.Remove(cast(ubyte[])"te4a" );
-		r.Remove(cast(ubyte[])"t2ttt4t" );
-
+		r.Remove(cast(ubyte[])"t2ttt4t" );		
 		r.show();
 
 	}
@@ -1592,6 +1614,60 @@ unittest{
 		r.show();
 	}
 
+
+
+	void removeArray(T)(ref T[] arrs , T value)
+	{
+		if(arrs.length == 0)
+			return ;
+		
+		uint i = 0 ;
+		for( ; i < arrs.length ; i++)
+		{
+			if(arrs[i] == value)
+				break;
+		}
+		
+		if(i == arrs.length)	//not found
+			return ;
+		
+		
+		if( i == 0)						//first
+		{	
+			arrs = arrs[1 .. $];
+		}
+		else if(i == arrs.length - 1)	//end
+		{
+			arrs = arrs[0 .. $ -1 ];
+		}
+		else							//mid
+		{
+			auto tmps = arrs[0 .. i];
+			tmps ~= arrs[i + 1 .. $];
+			arrs = tmps;
+		}
+		
+	}
+
+	void test11()
+	{	
+		string toadd[] = ["alligator","alien","baloon","chromodynamic","romane","romanus","romulus","rubens","ruber","rubicon","rubicundus","all","rub","ba"];
+
+		rax *r = rax.New();
+		import std.random;
+		writefln("begin");
+		ulong len = toadd.length;
+		for(uint i = 0 ; i < len ; i++)
+		{
+			ulong ra = uniform(0 , toadd.length);
+			writeln(toadd[ra]);
+			r.Insert(cast(ubyte[])toadd[ra] , null);
+			removeArray(toadd , toadd[ra]);
+		}
+		rax.Free(r);
+
+	}
+
 	void test7()
 	{
 		string toadd[] = ["alligator","alien","baloon","chromodynamic","romane","romanus","romulus","rubens","ruber","rubicon","rubicundus","all","rub","ba"];
@@ -1637,7 +1713,7 @@ unittest{
 		import std.random;
 
 			string[] keys;
-			uint num = 500;
+			uint num = 100000;
 
 			for(uint j = 0 ; j < num ; j++)
 			{
@@ -1651,17 +1727,16 @@ unittest{
 				keys ~= key;
 			}
 
-
-			foreach(k ; keys)
-			{
-				writeln(k);
-			}
-
-
-
 			rax *r = rax.New();
 			foreach(i , k ; keys)
+			{
 				r.Insert(cast(ubyte[])k , cast(void *)i);
+			}
+
+		//	foreach(k;keys)
+		//	{
+		//		writeln("\"" , k , "\",");
+		//	}
 
 			foreach(k ; keys)
 			{
@@ -1669,585 +1744,144 @@ unittest{
 			}
 
 			r.show();
+			assert(r.numele == 0);
+
 
 
 	}
+
+
 
 	void test8()
 	{
-		string[] keys = ["i5hXOjIMfMIDFOV",
-			"8S42FOb8QCi6Z",
-				"0m4DruYKd",
-				"kWohExvd",
-				"zKhRdcjc8OX",
-				"SD",
-				"YvUqR",
-				"V3SfkG",
-				"OsJota6Ty0B9",
-				"2naBFIRu501e97B",
-				"lniA8Rc4Wrd",
-				"X2NLf7DhveVp5",
-				"0KwThA5op15TUf",
-				"UV1Dle",
-				"0HGHlDA",
-				"Ijb",
-				"D4jUBFEP",
-				"9",
-				"4",
-			"B0UWW25Hag6QQCW"];
-
-		rax *r = rax.New();
-		foreach(i , k ; keys)
-			r.Insert(cast(ubyte[])k , cast(void *)i);
-		
-		foreach(k ; keys)
-		{
-			r.Remove(cast(ubyte[])k);
-		}
-		
-		r.show();
-
-
-	}
-
-	void test10()
-	{
-		string[] keys = ["ECSQRpibXomv5rq",
-			"1bbE071jrvKI",
-			"MFecoeDB",
-			"kLvebdY",
-			"R",
-			"8k81",
-			"nI8oknzTJcqAiZW",
-			"8cp",
-			"nrwzo91l",
-			"kKJGT2oscO",
-			"CBhyBazS",
-			"kwt",
-			"EjeUZ",
-			"SynyBzDe2vPuwdH",
-			"DvXUh3BA42dbjCu",
-			"TAv0UNQCIZNwv",
-			"Zp",
-			"7FLCzmo6vMb",
-			"KP3uOonF1",
-			"TiYcUpXtDR",
-			"NxtKETAN2urK",
-			"3Zd1KgMS6xJx",
-			"n1B",
-			"9RGdQF13up5M4HA",
-			"IooTA",
-			"F0huIEQ",
-			"4RH",
-			"Zr4K5jsuOWST9w",
-			"LmbJ0NjvNv7a",
-			"z1uRCTLXpugvca6",
-			"sqPb",
-			"N49x2jni",
-			"2756L8cw9Ob5a0",
-			"trX9XpX",
-			"X9eKdZ8oYrfMU",
-			"93rUfmaOH",
-			"fOv291z",
-			"V",
-			"9kntLyBHgzl",
-			"koLVQqkeiz2h",
-			"A80ewI4d0d",
-			"wR",
-			"zfttu7DB",
-			"JmBSB0p",
-			"IcvPYBD",
-			"3tiF5d8",
-			"B",
-			"R6",
-			"0nKzR7tS",
-			"3ljmGUfzyoI",
-			"8VrwcxGhYc",
-			"iKR5ecyfH9sSyK",
-			"nczAF6BnQE4xqw6",
-			"mnISmhV",
-			"7mGn5WQFK",
-			"w6hO",
-			"PiDQ7Q",
-			"i9",
-			"fGWCzznQbs1",
-			"2EAFv3y3",
-			"9HvLYu",
-			"rD7E",
-			"G16FR",
-			"rOSFSIPDuYfmaPY",
-			"rcxdRTT5VBpcOT",
-			"pyK2ISwdETcGN8",
-			"cJdjqdIcUTc2",
-			"XPq3Kp79eTi",
-			"77fVUfvws3qrG",
-			"BwjxYrjY5Kf3",
-			"U4AvVBckgCTauJ",
-			"RB9jrfrlID",
-			"1hBz7PxL6YeTAPm",
-			"oNO1teCYQx",
-			"Fen8YD58MzQN",
-			"dVW2o0Y6f",
-			"g1O",
-			"hAl8kCMJNBBn2",
-			"D5zwIjXA1aV8",
-			"2i8PvR5RhxAwF",
-			"lFZulL",
-			"04xKn",
-			"njypIpY9I5",
-			"sFH9fzV",
-			"2GW4mUt",
-			"8IV64MN23OiHC",
-			"AarhGRUWWK3kN",
-			"AIXM",
-			"NLL9jZv",
-			"Iqkq6EkgHma98",
-			"Vrru0yrcQYlU",
-			"WiAL4vt",
-			"OEL9ialUFMT",
-			"tFD",
-			"oGwL19eNeBz",
-			"N6ykO2Yj2RHeo",
-			"dg5Y5hS4Be",
-			"RBsMsQZ4RaV",
-			"FdDsY",
-			"YkJraQqSWDvR4S",
-			"Ngq8GQBJo07",
-			"G0FTXgxdSmf",
-			"u76wMYe8",
-			"Vz4DqYHXUz7o",
-			"w",
-			"RP44zmMDDm",
-			"JLvcVRjaAWJ1",
-			"hy2tvs",
-			"T3B46dPAhjGzk",
-			"i",
-			"vslKX622aGtN",
-			"zoBQ8Z2G",
-			"v3RgEwi7kSvgI2V",
-			"g86",
-			"xZb3qUoYsRE",
-			"z",
-			"xb",
-			"TcESY",
-			"7LxJVzzdYubvxeI",
-			"KVSJ0j",
-			"cwW9F",
-			"GGzm3SWIvmhGMQ",
-			"ETZf8Vhm8bRfI",
-			"Oup9",
-			"6QhnZkw8A",
-			"366",
-			"tN",
-			"brOipdJe2sFSeL",
-			"XGOO",
-			"XXGr1y3Bd",
-			"Co",
-			"NwilrH",
-			"bzM7lp8zRt9rQaE",
-			"PjsOzB",
-			"qnjxy9ZbTM",
-			"RcyW55l7VLdYb",
-			"vr9Acz",
-			"wtToW6Mvl9fOxuW",
-			"yTQoKgD0B8",
-			"RbPogDojYe0",
-			"v5D95f8TK0Tsx",
-			"8a9DQRkRyOgWtK8",
-			"kRo",
-			"KMT5sl7VimM4dH",
-			"mLySBS",
-			"Se7yGK2ZBe",
-			"7S4wAEDQuzB54",
-			"g3QBjNUne7pr",
-			"zxi",
-			"91UePPy",
-			"8SRH89YurP",
-			"7",
-			"WCAt",
-			"tylmL",
-			"rjYGdk91QXEr",
-			"eNJe",
-			"lTf2k",
-			"ktPjywE97F",
-			"w6S",
-			"bh",
-			"iJVzhVnNS",
-			"ABWcgg",
-			"tYkVZS5IhuIep90",
-			"VXc9cM",
-			"K1c8oqNIunI",
-			"2jhAfA",
-			"r",
-			"9nCvR9bFpnqW",
-			"wamzbsHzHj",
-			"rrybD",
-			"nxiyKZnQ",
-			"D0TSASaY",
-			"t",
-			"6yNnluu0AIN",
-			"TwhZssAR",
-			"SHP",
-			"AsphT",
-			"MEfx",
-			"X9",
-			"wA4kZ57GD2",
-			"o7tZv79uGV3",
-			"BreYd7X",
-			"9RA7",
-			"egGCRJ",
-			"uwIIXDf1cSl4",
-			"cA4j",
-			"S",
-			"8NFivJLuk",
-			"3wMKI8cWlJGR8",
-			"Jek1uhLFKtcJO",
-			"natM3k",
-			"ALGa",
-			"xOI0S",
-			"B5HB",
-			"VowSQ4MqryiV",
-			"97e",
-			"yyEGJA",
-			"ubdgd2H",
-			"RMQVKmbDfZSmTo",
-			"OgwO1u",
-			"S",
-			"F5bk4kem",
-			"Jt",
-			"Tvh8sbS9jd",
-			"H",
-			"hrjj1BErxIo",
-			"iXU",
-			"EunWhhURg4",
-			"PFowgAyZPjF9Y",
-			"XO",
-			"m81BdnqaqhmwT",
-			"YB5t",
-			"KcZtpgnLhmHS",
-			"pWg4Rem0fyf",
-			"yZtrgV",
-			"7YyDU",
-			"eCmL3",
-			"puk2McBU10KJ",
-			"OeB0WA",
-			"1pjwGLh",
-			"KQ6nbBk6iFpVbg",
-			"Lqko",
-			"65enAW4g6",
-			"X4i5",
-			"x73gwC77vdVA",
-			"BXyqe7zJliVYPX",
-			"CS5PQi",
-			"hMLivjDoscyj",
-			"s92tvj4ZuLnfJVu",
-			"4JkWxTa6",
-			"SnTwdqLVsxw",
-			"ou7eL5ziK9o2a",
-			"VeJHyAy",
-			"q3CAWDh5gptX",
-			"Nge9aE",
-			"wn",
-			"swqfCUbHa9sD",
-			"VPkYG6olj",
-			"x5RwE",
-			"LR0wir",
-			"nkWJgoPfeW9Ubag",
-			"taEUo",
-			"QgfkZUq",
-			"F",
-			"H",
-			"j4Ak6F0N1b8n",
-			"9PZ",
-			"j",
-			"0skRT3",
-			"GQ",
-			"7",
-			"Z8Mj0aWL9Ws8ij",
-			"ybku9ShkImY",
-			"55QAM7QBz6LUV",
-			"OeQabmey",
-			"ATpNWag4e39",
-			"rhtc5CT5d",
-			"D",
-			"eDmaMUlK",
-			"Mlp02waKh5yomH",
-			"zSHKnjB9MD3",
-			"f",
-			"1o6",
-			"9hE",
-			"MGBztWwX7mR9mkd",
-			"IYqX2wZ68pnbSrg",
-			"PMpaylbUoBXhsg",
-			"A",
-			"y6KSYhob0Jiq",
-			"24OmSH0",
-			"ruu1edaMo",
-			"z1Cn659",
-			"sLQU",
-			"62MaLtv",
-			"Q0q6U0yJqhO",
-			"iU",
-			"U",
-			"3p",
-			"Nplg4QegzppF",
-			"K20yeBgK",
-			"oC8",
-			"FR1IBdT7fQE95D",
-			"i4",
-			"34xObz9UH0gV",
-			"WaibCXIdqa2V",
-			"0dhOVb",
-			"xYcES",
-			"2Dsxz0Itiz304K",
-			"aqzkiYcqjztW",
-			"9ZGHkk8",
-			"DICO7A8lK",
-			"guzcsbV",
-			"cImTwZ",
-			"gae1QbXxTF",
-			"DpckU0Tul",
-			"wWw01p",
-			"dyhu",
-			"p1xEUKgmMtRGhCB",
-			"ieISmFzrfSup698",
-			"1nBzbEVDXH7xQ",
-			"q",
-			"Uq",
-			"XD6uTAjibfF",
-			"mX9zkk9nsDJA",
-			"2MHdv",
-			"akHIxoGvcZ34DH",
-			"Qnsa",
-			"tTVAJfu",
-			"gIY1im",
-			"qWShC1Z",
-			"5Zz2fT",
-			"dc7LqELAAefB8",
-			"zDK1",
-			"d5Nk4Y6Udi4y3FU",
-			"cWWqF",
-			"q9",
-			"qCQTH2jCkArw",
-			"L",
-			"YeFXiVi5o",
-			"F",
-			"OezeJK4OLlxvo",
-			"2mx3t4S0FGD9fr",
-			"pQ",
-			"JovDWkJYlOAIn",
-			"pR4hzEgvHJKCMGn",
-			"AevM",
-			"R6Evya",
-			"lEJhU0ZF0GTWMy",
-			"Cpe",
-			"fiAG3ag4FlZln",
-			"qUr",
-			"wWzwXOmZORl3",
-			"YYsdlQK8Gwt",
-			"1CrsF5y2",
-			"m",
-			"jauZE093S4",
-			"HC4X2qZSSnMS05",
-			"2",
-			"o7qNAIjRCEWx",
-			"yHWIvL4",
-			"l",
-			"m6BO4tGNL5JEgPs",
-			"You1RIZtDe0PPgq",
-			"eTdyfHOrx",
-			"bxO",
-			"3cLt1RiDc906Ec",
-			"iDzARFL",
-			"7Ic19",
-			"pURGQID",
-			"cZNlVu4dATo",
-			"XqGPtLuNE41qw0j",
-			"OZ",
-			"vFQP8W4iQGw7mG",
-			"7vx6Z5wjVZlf2",
-			"Jwm9kv",
-			"p1WboQd0rv82I",
-			"RtuNmr",
-			"EtWHHZd5TnQ",
-			"AwzVzoXyrlLc6w",
-			"LzzKmMFsf86ezc",
-			"EjWPyQSf5yPxfMT",
-			"okNRXP",
-			"j7xUK",
-			"g",
-			"onqS",
-			"tmcJggr",
-			"KxHs",
-			"7Q5Pv1DBU",
-			"ucwm",
-			"n1",
-			"Aj2pDPrif5FGv6",
-			"yu3NbHpnJ",
-			"ikdT",
-			"jqw9N",
-			"HcuUk9o",
-			"OvRjDnt",
-			"dzWUoWtqk",
-			"PGHmK",
-			"mt",
-			"iI7Cib",
-			"pR",
-			"W3rjl09C",
-			"cZSUZe8jzn",
-			"eWa",
-			"S",
-			"xEpvTOMn7Yvs",
-			"hVKZCX4eIVVzWx",
-			"tOIZmE4Q",
-			"pjBaY",
-			"YUbvAtYJUQ",
-			"uPJ08Qx6F",
-			"2bMHEzlldQVFwG2",
+		string[] keys = ["6iGKzX3jE9qxsD",
+			"075Bk46HqHU0q1m",
+			"1Q",
+			"vielQ",
+			"7l2hDdf7iie",
+			"J8W",
+			"nM3Vsq9aMJno",
+			"pOb",
+			"9A7yAsn44gNO9M3",
+			"jhSk",
+			"nz",
+			"Ib1K3ZV",
+			"Ii42",
+			"XuRCTLFn",
+			"LYHw9",
 			"v",
-			"lpSEOYFf",
-			"o4",
-			"3tk4HSVrYHp1",
-			"IRRrbzgz8PN9",
-			"9PDbZWRljhnbl",
-			"ma",
-			"zSJ28Si0hp",
-			"I3AzeRdqaOcF",
-			"7w713dC94WPq",
-			"plTLYvdub0Awhc",
-			"8b9PATMwK",
-			"kMmHJDDjUC",
-			"WAYm",
-			"m82vKWF4fwLY6E",
-			"RQ5sRqgqhR",
-			"LvvpOtSCJstjYcS",
-			"wqlnRVbW8dX",
-			"0H",
-			"cjkZ7GZKR22Hi",
-			"CBlLxMW44jaY9NW",
-			"POf0T7Mm79Vjzzc",
-			"5n5AdB6ic2Bo",
-			"z2GoHQh4S6V5GK",
-			"Ku",
-			"T1ToBN",
-			"LvpWahMZ02",
-			"3szA",
-			"xh",
-			"MQEmBMWa",
-			"itWlifbufpWT2",
-			"Q30WaBlKZEf2yze",
-			"Q3",
-			"vX4sEbN",
-			"GWumssqaq6c",
-			"R9KvD0b",
-			"rlY4",
-			"x2fSmtaMAqvZG",
-			"4lBj4",
-			"i",
-			"wv",
-			"nm8kLY9FINiTk",
-			"JfEbhHaMNp7zpvn",
-			"M2A5yEU5qVY",
-			"6j0",
-			"FV5",
-			"n4phjL5z",
-			"uixUk6N2Kec",
-			"wQp0",
-			"jHtHq",
-			"sASrke",
-			"oM7jv0VAZOc",
-			"bsUUBO3fI7",
-			"HUEiEXceunEt",
-			"KEqkDOn",
-			"7OIq",
-			"clp",
-			"SB",
-			"l6ewhctETGF36DK",
-			"jC5",
-			"f7xsg1N",
-			"UJ",
-			"KRA1R9G",
-			"P2CHPFCMgA",
-			"Af588aRbakmEv9y",
-			"NE5XNCX6nXu9L",
-			"VXsG",
-			"08bjazJrcq1Z",
-			"qPDpSvxrplbbrGr",
-			"Mq3pl",
-			"8",
-			"uCw",
-			"KW3QA7p",
+			"rv9GcDDIIuU",
+			"ozvzXUa6XvNmjCD",
+			"V9BDbZhLk",
+			"LKvFfu5E0TTGSC",
+			"X0M3BDl",
+			"vit",
+			"JdXwLfWFtJCF1",
+			"J1sJcat7",
+			"Y",
+			"PFwAp8",
+			"GVgDS",
+			"si845olhaLxHTzl",
+			"Q7giJCX1s3aCRAG",
+			"WWxmAu0JE",
+			"Gi00",
+			"Ep66TUBVOq",
+			"o",
+			"tM",
+			"pk93FDV1WN5u",
+			"Tb",
+			"41CX6zAuB7FN6k",
+			"B",
+			"5hgvr",
+			"EttB",
+			"PpkfajX",
+			"q03VBctOOMfWeX",
+			"qPQ",
+			"Y8MQkGR0FEszcJJ",
+			"B4",
 			"b",
-			"bWzupR6LMraJ",
-			"TGIZ1Y8",
-			"QhgeP",
-			"lJmZe5mSI",
-			"1wpommfdG4GKJb",
-			"62nWQnjsXmBFk",
-			"SCH3K",
+			"M",
+			"m4tb",
+			"HNKVMMEWe5",
+			"Mdq",
+			"NR1HMdRcbn",
+			"EANXs",
+			"3",
+			"bPCn1",
+			"MGSO2OMcq0d",
+			"jcI",
+			"nlYpE",
+			"ZguZsreAEu",
+			"PQ",
+			"sQtoy3GpwY4E",
+			"D",
+			"HkFMulpR0Z5ER",
+			"dnNl0bfBz6a",
+			"H7",
 			"P",
-			"oQzDHN",
-			"WQL1B",
-			"H",
-			"6oNfkF",
-			"4LBQKqPboSCUEuJ",
-			"7rNTc",
-			"rFpK1",
-			"QyMQZ",
-			"x",
-			"mb9WXc",
-			"PRBEnVvOedNCZ4K",
-			"vz7Cw8sM",
-			"dXU9m9pgjMwgH",
-			"lLFj9JIBe3VLEyS",
-			"CcaJizRub3GFAj",
-			"xS7wxjDieZMdxzk",
-			"aS94ckc8hLT",
-			"x6x",
-			"53ZqAEuQbv",
-			"oxn3jpeUnchIVq",
-			"8yMHX1Bfn",
-			"gCc",
-			"QlL1s",
-			"Pj8Aax",
-			"Qx7mxny",
-			"fokupSJ4FUJu"];
+			"hataMXRKDKIf",
+			"4",
+			"V",
+			"PitbhF",
+			"2YYVU824Haiqn1",
+			"ph",
+			"O9SHLz4rS7a7P",
+			"b1G",
+			"wipVlqsTVtZgp6i",
+			"cKxReYYAg1vCQAy",
+			"W3n3",
+			"Vo4jx",
+			"Q24Zy2LTOtuY",
+			"fuTrdG",
+			"iiz8CGOo",
+			"AfbEy",
+			"rCZDkRyp",
+			"2K7iem",
+			"Ps7",
+			"QSTRUqtNz79wo3A",
+			"LNz2Wc3SXPT5EKz",
+			"LlNWUt",
+			"Vl",
+			"S2sQskL5Hik",
+			"KRITaPuQQe4eZ9",
+			"revJxYljv",
+			"m5fWm3NDvWDqlo",
+			"mqCPr5qooh",
+			"3esmkmvVjQQ6OA",
+			"fzHk3",
+			"Q1oxV3OUPpto",
+			"IgdcxujIH0zQ",
+			"YuFkYmf267p",
+			"tVp",
+			"kIDenL3"];
 
 		rax *r = rax.New();
+
+
+	
+
 		foreach(i , k ; keys)
+		{
 			r.Insert(cast(ubyte[])k , cast(void *)i);
 
-	/*	foreach(i , k ; keys)
-		{
-			writeln(i);
-			r.Remove(cast(ubyte[])k);
 		}
-		r.show();*/
 
-
-		for(uint i = 0 ; i < 62 ; i++)
+		foreach(i , k ; keys)
 		{
-			r.Remove(cast(ubyte[])keys[i]);
+			r.Remove(cast(ubyte[])k);
+			
 		}
 
 		r.show();
-		log_info(keys[63]);
-		r.Remove(cast(ubyte[])keys[63]);
-		//r.show();
-		//r.Remove(cast(ubyte[])keys[100]);
-		//r.Remove(cast(ubyte[])keys[101]);
-		//r.Remove(cast(ubyte[])keys[102]);
 
-		//log_info(keys[103]);
-		//r.Remove(cast(ubyte[])keys[103]);
-		//r.show();
-		//r.Remove(cast(ubyte[])keys[104]);
-
-
+	
+	
 
 
 
 	}
+
+
 
 	void test9()
 	{
@@ -2420,17 +2054,42 @@ unittest{
 		r.show();
 	}
 
-	//test1();
-	//test4();
-	//test2();
-	//test3();
-	//test5();
-	//test7();
-	//for(uint i = 0 ; i <10 ; i++)
-	//	test6();
-	test10();
-	//test8();
-	//test9();
+	void test12()
+	{
+		string[] keys = ["rubens",
+			"rubicundus",
+				"rubicon",
+				"alien",
+				"romane",
+				"romulus",
+				"chromodynamic",
+				"all",
+				"baloon",
+				"alligator",
+				"ba"
+			"rub" ];
+		rax *r = rax.New();
+		foreach(i , k ; keys)
+		{
+			r.Insert(cast(ubyte[])k , cast(void *)i);
+		}
+		r.show();
+	}
 
+	/*test1();
+	test4();
+	test2();
+	test3();
+	test5();
+	test7();
+	test8();
+	test9();
+	test11();
+	test12();*/
+	//test8();
+
+	for(uint i = 0 ;i < 1000 ; i++)
+		test6();
 }
+
 
