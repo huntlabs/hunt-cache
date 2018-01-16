@@ -7,13 +7,13 @@ import zhang2018.cache.nullable;
 //	meta
 //	object
 
-byte[] SerializeToByte(T)(T t)
+byte[] SerializeToByte(T: const T)(T t)
 {
 	string meta = T.stringof;
 	return serialize(meta) ~ serialize(t);
 }
 
- Nullable!T DeserializeToObject(T)(const byte[] data )
+ Nullable!T DeserializeToObject(T : const T)(const byte[] data )
 {
 	long parser_index;
 	if(data.length == 0)

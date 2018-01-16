@@ -44,31 +44,47 @@ class RedisCache
 			}
 		}
 		
-		void 					put(V)(string key , const V v)
+		void 					put(V)(string key , const V v , uint expired)
 		{
 			synchronized(this){
-				_redis.send("set" , key , cast(string)SerializeToByte!V(v));
+				if( expired == 0)
+					_redis.send("set" , key , cast(string)SerializeToByte!V(v));
+				else
+					_redis.send("setex" , key , expired , cast(string)SerializeToByte!V(v));
 			}
 		}
 
 		bool					putifAbsent(V)(string key , const V v)
 		{
 			synchronized(this){
-				return _redis.send!bool("setnx" , key , cast(string)SerializeToByte!V(v)) == 1;
+					return _redis.send!bool("setnx" , key , cast(string)SerializeToByte!V(v)) == 1;		
 			}
+
 		}
 
-		void					putAll(V)(const V[string] maps)
+		void					putAll(V)(const V[string] maps , uint expired)
 		{
 			synchronized(this){
 				if(maps.length == 0)
 				return;
 
-				string[] cmds;
-				foreach( k ,v ; maps){
-					cmds ~= "set " ~ k ~ " " ~ cast(string)SerializeToByte!V(v);
+				if(expired == 0)
+				{
+					string cmds = "mset ";
+					foreach(k , v ; maps)
+					{
+						cmds ~= k ~ " " ~ cast(string)SerializeToByte!V(v);
+					}
+
+					_redis.send(cmds);
 				}
-				_redis.pipeline(cmds);
+				else{
+					string[] cmds;
+					foreach( k ,v ; maps){
+						cmds ~= "setex " ~ k ~ " " ~ to!string(expired) ~ " " ~ cast(string)SerializeToByte!V(v);
+					}
+					_redis.pipeline(cmds);
+				}
 			}
 		}
 		

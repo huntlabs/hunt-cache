@@ -18,17 +18,17 @@ final class Cache(T)
 		return _t.containsKey(key);
 	}
 
-	void 					put(V)(string key , const V v)
+	void 					put(V)(string key , const V v , uint expired = 0)
 	{
-		return _t.put!V(key , v);
+		return _t.put!V(key , v , expired);
 	}
 	bool					putifAbsent(V)(string key , const V v)
 	{
 		return _t.putifAbsent!V(key , v);
 	}
-	void					putAll(V)(const V[string] maps)
+	void					putAll(V)(const V[string] maps , uint expired = 0)
 	{
-		return _t.putAll!V(maps);
+		return _t.putAll!V(maps , expired);
 	}
 
 	bool					remove(string key)
@@ -61,28 +61,54 @@ unittest{
 	import zhang2018.cache.memcached;
 	import std.stdio;
 
-	auto cache = new Cache!MemoryCache();
+
 
 	struct A{
 		int age;
 		string name;
-
-	};
+	}
 
 	A a;
+	a.age = 11;
 	a.name = "zhyc";
-	a.age = 0;
-	cache.put!A("test" , a);
 
-	writeln(cache.get!A("test"));
-
+	auto cache = new Cache!MemoryCache();
+	cache.put("memory" , a);
+	writeln(cache.get!A("memory"));
 
 	auto cache2 = new Cache!(RedisCache)("127.0.0.1" , 6379);
-	cache2.put!A("redis" , a);
+	cache2.put("redis" , a);
 	writeln(cache2.get!A("redis"));
 
 	auto cache3 = new Cache!(MemcachedCache)("127.0.0.1" , 11211);
-	cache3.put!A("redis" , a);
-	writeln(cache3.get!A("redis"));
+	cache3.put("memcached" , a);
+	writeln(cache3.get!A("memcached"));
+
+	A b;
+	b.age = 10;
+	b.name = "expired";
+	cache.put("expired" , b , 1);
+	cache2.put("expired" , b , 1);
+	cache3.put("expired" , b , 1);
+
+	writeln(cache.get!A("expired"));
+	writeln(cache2.get!A("expired"));
+	writeln(cache3.get!A("expired"));
+
+
+	import core.thread;
+	Thread.sleep(dur!"msecs"(500));
+
+	writeln(cache.get!A("expired"));
+	writeln(cache2.get!A("expired"));
+	writeln(cache3.get!A("expired"));
+
+	Thread.sleep(dur!"msecs"(1000));
+	
+	writeln(cache.get!A("expired"));
+	writeln(cache2.get!A("expired"));
+	writeln(cache3.get!A("expired"));
+
+
 
 }

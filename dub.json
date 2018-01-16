@@ -1,6 +1,5 @@
 {
     "name": "cache",
-	"targetType":"executable",
     "dependencies": {
     	"common":{"path":"../common"},
 		"radix-tree":{"path":"../radix-tree"},

@@ -46,10 +46,10 @@ class MemcachedCache
 	}
 
 
-	void 					put(V)(string key , const V v)
+	void 					put(V)(string key , const V v , uint expired)
 	{
 			synchronized(this){
-				put_inter!V(key , v);
+				put_inter!V(key , v , expired);
 			}
 	}
 	
@@ -62,13 +62,13 @@ class MemcachedCache
 	}
 	
 	// because memcached api no mset api , so is cost much time to put many.
-	void					putAll(V)(const V[string] maps)
+	void					putAll(V)(const V[string] maps , uint expired)
 	{
 			synchronized(this){
 
 				foreach(k , v ; maps)
 				{
-					put_inter!V(k , v);
+					put_inter!V(k , v , expired);
 				}
 			}
 
@@ -121,9 +121,9 @@ class MemcachedCache
 		return DeserializeToObject!V(cast(byte[])data);
 	}
 
-	void 					put_inter(V)(string key , const V v)
+	void 					put_inter(V)(string key , const V v , uint expired)
 	{
-		 _cache.set(key , cast(string)SerializeToByte!V(v));
+		 _cache.set(key , cast(string)SerializeToByte!V(v) , cast(int)expired);
 	}
 
 	bool					remove_inter(string key)

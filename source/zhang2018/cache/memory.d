@@ -10,9 +10,14 @@ import zhang2018.cache.nullable;
 
 
 import std.stdio;
+import core.stdc.time;
+
+
+private:
 
 
 
+public:
 class MemoryCache 
 {
 
@@ -39,40 +44,35 @@ class MemoryCache
 	bool			containsKey(string key)
 	{
 		synchronized(this){
-			void *data;
-			if(!r.find(cast(ubyte[])key ,data))
-				return false;
-
-			return true;
+			return find_inter(key , true);
 		}
 	}
 	
-	void 			put(V)(string key , const V v)
+	void 			put(V)(string key , const V v , uint expired)
 	{
 		synchronized(this){
-			put_inter(key , v);
+			put_inter(key , v , expired);
 		}
 	}
 
 	bool			putifAbsent(V)(string key , const V v)
 	{
 		synchronized(this){
-			void *data;
-			if(!r.find(cast(ubyte[])key ,data))
+			if(!find_inter(key , false))
 			{	
-				r.put_inter(key , v);
+				put_inter(key , v , 0);
 				return true;
 			}
 			return false;	
 		}		
 	}
 
-	void			putAll(V)(const V[string] maps)
+	void			putAll(V)(const V[string] maps , uint expired)
 	{
 		synchronized(this){
 			foreach(k , v ; maps)
 			{
-				r.put_inter(k , v);
+				put_inter(k , v , expired);
 			}
 		}
 	}
@@ -80,6 +80,7 @@ class MemoryCache
 	bool			remove(string key)
 	{
 		synchronized(this){
+
 			return remove_inter(key);
 		}
 	
@@ -98,31 +99,90 @@ class MemoryCache
 	void 			clear()
 	{
 		synchronized(this){
-			r.Clear();
+			rax_data.Clear();
+			rax_time.Clear();
 		}
 	}
 
 
 	this()
 	{
-		r = rax.New();
+		rax_data = rax.New();
+		rax_time = rax.New();
 	}
 
 	~this()
 	{
-		rax.Free(r);
+		rax.Free(rax_data);
+		rax.Free(rax_time);
 	}
 
 protected:
 
-	rax				*r;
+	rax				*rax_data;
+	rax				*rax_time;
+
+
+
+	bool			find_inter(string key , bool free)
+	{
+		Nullable!uint tick = get_inter!uint(rax_time , key);
+		if(tick.isnull)
+		{
+			void *data;
+			return rax_data.find(cast(ubyte[])key ,data);
+		}
+		else{
+			uint now = cast(uint)time(null);
+			if( tick.origin < now )
+			{
+				if(free)
+				{
+					remove_inter(key);
+				}
+				return false;
+			}
+			else{
+				return true;
+			}
+		}
+	
+	}
+
+
 
 	Nullable!V		get_inter(V)(string key)
+	{
+		Nullable!uint tick =  get_inter!uint(rax_time , key);
+
+		if(tick.isnull)	//not set ttl
+		{
+			return get_inter!V(rax_data , key);
+		}
+		else{
+			uint now = cast(uint)time(null);
+			if( tick.origin < now) // remove
+			{
+				remove_inter(key);
+				return Nullable!V.init;
+			}
+			else{
+				return get_inter!V(rax_data , key);
+			}
+			
+		}
+
+	}
+
+
+	Nullable!V		get_inter(V)(rax *r ,string key)
 	{
 		void *data;
 		if (!r.find(cast(ubyte[])key , data))
 			return Nullable!V.init;
-		
+
+
+
 		uint len;
 		memcpy(&len , data , 4);
 		byte[] byDatas = new byte[len];
@@ -131,7 +191,17 @@ protected:
 	}
 
 
-	void 			put_inter(V)(string key , const V v)
+	void put_inter(V)(string key , const V v , uint expired)
+	{
+		if(expired == 0)
+			put_inter(rax_data , key , v);
+		else{
+			put_inter!uint(rax_time , key , expired + cast(uint)time(null));
+			put_inter(rax_data , key , v);
+		}
+	}
+
+	void 			put_inter(V)(rax *r , string key , const V v)
 	{
 		byte[] data = SerializeToByte!V(v);
 
@@ -142,7 +212,19 @@ protected:
 		r.Insert(cast(ubyte[])key , value);
 	}
 
-	bool			remove_inter(string key)
+
+	bool 			remove_inter(string key)
+	{
+		if(rax_data.Remove(cast(ubyte[])key))
+		{
+			rax_time.Remove(cast(ubyte[])key);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool			remove_inter(rax *r , string key)
 	{	
 		return r.Remove(cast(ubyte[])key);	
 	} 
