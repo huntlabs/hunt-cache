@@ -3,7 +3,7 @@
 import zhang2018.cache.nullable;
 
 
-final class Cache(T)
+final class UCache(T)
 {
 	Nullable!V				get(V)(string key)
 	{
@@ -54,7 +54,7 @@ private:
 
 	T _t;
 }
-
+/*
 unittest{
 	import zhang2018.cache.memory;
 	import zhang2018.cache.redis;
@@ -72,15 +72,18 @@ unittest{
 	a.age = 11;
 	a.name = "zhyc";
 
-	auto cache = new Cache!MemoryCache();
+	auto cache = new UCache!MemoryCache();
 	cache.put("memory" , a);
 	writeln(cache.get!A("memory"));
 
-	auto cache2 = new Cache!(RedisCache)("127.0.0.1" , 6379);
+
+
+
+	auto cache2 = new UCache!(RedisCache)("127.0.0.1" , 6379);
 	cache2.put("redis" , a);
 	writeln(cache2.get!A("redis"));
 
-	auto cache3 = new Cache!(MemcachedCache)("127.0.0.1" , 11211);
+	auto cache3 = new UCache!(MemcachedCache)("127.0.0.1" , 11211);
 	cache3.put("memcached" , a);
 	writeln(cache3.get!A("memcached"));
 
@@ -111,4 +114,4 @@ unittest{
 
 
 
-}
+}*/

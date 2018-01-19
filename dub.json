@@ -1,8 +1,7 @@
 {
     "name": "cache",
     "dependencies": {
-    	"common":{"path":"../common"},
-		"radix-tree":{"path":"../radix-tree"},
+    	"kiss":{"path":"../kiss"},
 		"tinyredis": {"version" :"~>2.1.1" },
 		"libmemcached":{"version":"~>1.1.0"}
     },

@@ -1,6 +1,6 @@
 ﻿module zhang2018.cache.store;
 
-import zhang2018.common.Serialize;
+import kiss.serialize;
 import zhang2018.cache.nullable;
 
 //only add header from Serialize for check meta info.
@@ -19,12 +19,12 @@ byte[] SerializeToByte(T: const T)(T t)
 	if(data.length == 0)
 		return Nullable!T.init;
 
-	string meta = deserialize!string(data , parser_index);
+	string meta = unserialize!string(data , parser_index);
 	if(T.stringof != meta)
 		return Nullable!T.init;
 	Nullable!T nullt;
 
-	nullt.bind(deserialize!T(data[parser_index .. $]));
+	nullt.bind(unserialize!T(data[parser_index .. $]));
 
 	return nullt;
 }
