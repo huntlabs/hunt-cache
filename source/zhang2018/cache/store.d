@@ -24,7 +24,7 @@ byte[] SerializeToByte(T: const T)(T t)
 		return Nullable!T.init;
 	Nullable!T nullt;
 
-	nullt.bind(unserialize!T(data[parser_index .. $]));
+	nullt.bind(unserialize!T(data[cast(size_t)parser_index .. $]));
 
 	return nullt;
 }

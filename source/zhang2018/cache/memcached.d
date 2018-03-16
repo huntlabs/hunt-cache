@@ -30,7 +30,7 @@ class MemcachedCache
 					return mapv;
 
 				foreach(k ; keys){
-					mapv[k] = get_inter!V(key);
+					mapv[k] = get_inter!V(k);
 				}
 
 				return mapv;
@@ -57,7 +57,13 @@ class MemcachedCache
 	bool					putifAbsent(V)(string key , const V v)
 	{
 			synchronized(this){
-				return _cache.replace(key , cast(string)SerializeToByte!V(v));
+
+				if(containsKey(key))
+					return false;
+
+				put_inter!V(key , v , 0);
+				return true;
+				//return _cache.replace(key , cast(string)SerializeToByte!V(v));
 			}
 	}
 	
@@ -111,8 +117,8 @@ class MemcachedCache
 			_cache = new Memcache("127.0.0.1" , 11211);
 	}
 
-	protected:
-		Memcache _cache;
+protected:
+	Memcache _cache;
 
 
 	Nullable!V				get_inter(V)(string key)

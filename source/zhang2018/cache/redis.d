@@ -3,6 +3,7 @@ import zhang2018.cache.cache;
 
 import zhang2018.cache.nullable;
 import zhang2018.cache.store;
+import std.conv;
 
 version(SUPPORT_REDIS){
 
@@ -73,9 +74,8 @@ class RedisCache
 					string cmds = "mset ";
 					foreach(k , v ; maps)
 					{
-						cmds ~= k ~ " " ~ cast(string)SerializeToByte!V(v);
+						cmds ~= k ~ " " ~ cast(string)SerializeToByte!V(v) ~ " ";
 					}
-
 					_redis.send(cmds);
 				}
 				else{
@@ -83,6 +83,7 @@ class RedisCache
 					foreach( k ,v ; maps){
 						cmds ~= "setex " ~ k ~ " " ~ to!string(expired) ~ " " ~ cast(string)SerializeToByte!V(v);
 					}
+
 					_redis.pipeline(cmds);
 				}
 			}
@@ -112,7 +113,7 @@ class RedisCache
 		void 					clear()
 		{
 			synchronized(this){
-				_redis.send("flush");
+				_redis.send("flushdb");
 			}
 		}
 

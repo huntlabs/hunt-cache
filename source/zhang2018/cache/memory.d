@@ -35,6 +35,7 @@ class MemoryCache
 	{
 		Nullable!V[string] mapv;
 		synchronized(this){
+			foreach(k ; keys)
 			mapv[k] = get_inter!V(k);
 		}
 
@@ -105,7 +106,7 @@ class MemoryCache
 	}
 
 
-	this()
+	this(ARG ...)(ARG args)
 	{
 		rax_data = rax.New();
 		rax_time = rax.New();
@@ -231,4 +232,5 @@ protected:
 
 
 }
+
 

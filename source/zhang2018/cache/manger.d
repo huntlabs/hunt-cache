@@ -38,7 +38,7 @@ class CacheManger
 		return cast(UCache!T)*cache ;
 	}
 
-	string[] getCacheNames()
+	string[] getAllCacheNames()
 	{
 		return _mapCaches.keys;
 	}
@@ -86,29 +86,99 @@ private:
 	bool[string][string]	_mapClassCaches;
 }
 
+
 unittest{
 
+	import core.thread;
+	import std.algorithm;
+
+	version(SUPPORT_MEMCACHED){
+		version(SUPPORT_REDIS){
+			version(SUPPORT_ROCKSDB){
+	
+
+	import zhang2018.cache.memcached;
+	import zhang2018.cache.rocksdb;
 	import zhang2018.cache.memory;
 	import zhang2018.cache.redis;
-	import zhang2018.cache.memcached;
 	import std.stdio;
 
-	CacheManger manager = new CacheManger();
 
-	manager.createCache!MemoryCache("memory");
-	manager.createCache!RedisCache("redis" , "127.0.0.1" , 6379);
-	manager.createCache!MemcachedCache("memcached" , "127.0.0.1" , 11211);
+	CacheManger manger = new CacheManger();
 
-	writeln(manager._mapCaches , manager._mapClassCaches);
+	//test manger.
 
-	auto cache = manager.getCache!MemoryCache("memory");
+	string[] allkeys = ["redis" , "memcached" , "memory" , "rocksdb1"  , "rocksdb2"];
+	allkeys.sort();
+	string[] rdallkeys = ["rocksdb1" , "rocksdb2"];
+	rdallkeys.sort();
 
-	cache.put("test" , "test");
+	auto redis = manger.createCache!RedisCache("redis" ,"127.0.0.1" , 6379);
+	auto memcahed = manger.createCache!MemcachedCache("memcached" , "127.0.0.1",11211);
+	auto momery = manger.createCache!MemoryCache("memory");
+	auto rocksdb1 = manger.createCache!RocksdbCache("rocksdb1" , "/tmp/test1");
+	auto rocksdb2 = manger.createCache!RocksdbCache("rocksdb2" , "/tmp/test2");
 
-	writeln(cache.get!string("test"));
 
-	manager.destroyCache("memory");
+	assert(manger.getCacheNames!MemoryCache()[0] == "memory");
+	assert(manger.getCacheNames!MemcachedCache()[0] == "memcached");
+	assert(manger.getCacheNames!RedisCache()[0] == "redis");
 
-	writeln(manager._mapCaches , manager._mapClassCaches);
+	assert(!manger.getCache!RedisCache("memory"));
+	assert(!manger.getCache!MemoryCache("redis"));
+	assert(manger.getCache!RocksdbCache("rocksdb2"));
 
+	auto getallkeys = manger.getAllCacheNames();
+	getallkeys.sort();
+	assert(getallkeys.length == allkeys.length);
+
+	foreach(i , n ; getallkeys)
+	{
+		assert(getallkeys[i] == allkeys[i]);
+	}
+
+	auto getrdallkeys = manger.getCacheNames!RocksdbCache();
+	getrdallkeys.sort();
+	assert(getrdallkeys.length == rdallkeys.length);
+	foreach(i , n ; getrdallkeys)
+	{
+		assert(getrdallkeys[i] == rdallkeys[i]);
+	}
+	manger.destroyCache("rocksdb2");
+	assert(!manger.getCache!RocksdbCache("rocksdb2"));
+
+	// test all cache's api.
+	void test(U)(UCache!U cache)
+	{		
+		cache.put("key1" ,"value1" , 1);
+		string[string] map = ["key2":"value2" , "key3":"value3"];
+		cache.putAll(map);
+		
+		assert(cache.get!string("key1").origin == "value1");
+		assert(cache.containsKey("key2"));
+		assert(!cache.putifAbsent("key1" , "value11"));
+		auto kvs = cache.getall!string(["key2" , "key3"]);
+		foreach(k,v ; kvs)
+		{
+			assert(map[k] == v.origin);
+		}
+		
+		assert(cache.remove("key2"));
+		assert(!cache.containsKey("key2"));
+		Thread.sleep(dur!"seconds"(2));
+		assert(!cache.containsKey("key1"));
+		assert(cache.putifAbsent("key1" , "value11"));
+		cache.clear();
+		assert(!cache.containsKey("key3"));
+	}
+
+
+	test(manger.getCache!RedisCache("redis"));
+	test(manger.getCache!MemcachedCache("memcached"));
+	test(manger.getCache!MemoryCache("memory"));
+	test(manger.getCache!RocksdbCache("rocksdb1"));
+
+			}
+		}
+	}
 }

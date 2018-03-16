@@ -1,10 +1,9 @@
 {
     "name": "cache",
     "dependencies": {
-    	"kiss":{"path":"../kiss"},
+    	"kiss":{"version":"~>0.2.1"},
 		"tinyredis": {"version" :"~>2.1.1" },
 		"libmemcached":{"version":"~>1.1.0"}
     },
-	"versions":["SUPPORT_REDIS" ,
-	"SUPPORT_MEMCACHED"]
+	"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS"]
 }
