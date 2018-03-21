@@ -49,7 +49,7 @@ class MemoryCache
 		}
 	}
 	
-	void 			put(V)(string key , const V v , uint expired)
+	void 			put(V)(string key , const V v , uint expired = 0)
 	{
 		synchronized(this){
 			put_inter(key , v , expired);
@@ -68,7 +68,7 @@ class MemoryCache
 		}		
 	}
 
-	void			putAll(V)(const V[string] maps , uint expired)
+	void			putAll(V)(const V[string] maps , uint expired = 0)
 	{
 		synchronized(this){
 			foreach(k , v ; maps)
