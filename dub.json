@@ -1,9 +1,13 @@
 {
     "name": "cache",
+	"targetType":"executable",
     "dependencies": {
     	"kiss":{"version":"~>0.2.1"},
 		"tinyredis": {"version" :"~>2.1.1" },
-		"libmemcached":{"version":"~>1.1.0"}
+		"libmemcached":{"version":"~>1.1.0"},
+		"rocksdb":{"version" :"~>0.0.7"}
     },
-	"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS"]
+	"lflags": ["-L./lib"],  
+	"libs": ["rocksdb","zstd"],  
+	"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS" , "SUPPORT_ROCKSDB"]
 }
