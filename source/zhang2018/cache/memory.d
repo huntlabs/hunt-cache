@@ -106,7 +106,7 @@ class MemoryCache
 	}
 
 
-	this(ARG ...)(ARG args)
+	this(string args = "")
 	{
 		rax_data = rax.New();
 		rax_time = rax.New();

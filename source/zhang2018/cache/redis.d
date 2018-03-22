@@ -4,6 +4,7 @@ import zhang2018.cache.cache;
 import zhang2018.cache.nullable;
 import zhang2018.cache.store;
 import std.conv;
+import std.string;
 
 version(SUPPORT_REDIS){
 
@@ -118,12 +119,13 @@ class RedisCache
 		}
 
 
-		this(string host , int port){
-			_redis = new Redis(host , cast(ushort)port);
-		}
+	
 
-		this(){
-			_redis = new Redis("127.0.0.1" , 6379);
+		this(string args){
+			if(args == null)
+				args = "127.0.0.1:6379";
+			auto hp = args.split(":");
+			_redis = new Redis(hp[0] , to!ushort(hp[1]));
 		}
 
 

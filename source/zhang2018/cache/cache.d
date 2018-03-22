@@ -5,8 +5,9 @@ import zhang2018.cache.l2cache;
 
 
 
-final class UCache(T)
+final class Cache(T )
 {
+
 	Nullable!V				get(V)(string key)
 	{
 		if(_t !is null)
@@ -79,7 +80,7 @@ final class UCache(T)
 			return _t2.clear();
 	}
 
-	this(ARGS ...)(bool enableL2Cache , ARGS args)
+	this(string args , bool enableL2Cache )
 	{
 		if(enableL2Cache)
 			_t2 = new L2Cache!T(args);

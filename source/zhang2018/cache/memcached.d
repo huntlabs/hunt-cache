@@ -4,6 +4,7 @@ import zhang2018.cache.cache;
 import zhang2018.cache.store;
 import zhang2018.cache.nullable;
 
+
 version(SUPPORT_MEMCACHED){
 
 	import memcache.memcache;
@@ -102,20 +103,15 @@ class MemcachedCache
 			}
 	}
 	
-	this(string host , int port)
+
+	
+	this(string args )
 	{
-			_cache = new Memcache(host , port);	
+		if(args == null)
+			args = "--SERVER=127.0.0.1:11211";
+		_cache = new Memcache(args);
 	}
 	
-	this(string config)
-	{
-			_cache = new Memcache(config);
-	}
-
-	this()
-	{
-			_cache = new Memcache("127.0.0.1" , 11211);
-	}
 
 protected:
 	Memcache _cache;
