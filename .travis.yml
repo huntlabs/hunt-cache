@@ -1,5 +1,8 @@
 language: d
 sudo: false
+services:
+ - redis-server
+ - memcached
 os:
  - linux
  - osx
