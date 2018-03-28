@@ -5,7 +5,6 @@ services:
  - memcached
 os:
  - linux
- - osx
 d:
   - dmd
   - ldc
