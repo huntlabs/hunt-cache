@@ -1,9 +1,30 @@
 {
     "name": "cache",
     "dependencies": {
-    	"kiss":{"version":"~>0.2.1"},
-		"tinyredis": {"version" :"~>2.1.1" },
-		"libmemcached":{"version":"~>1.1.0"}
-    },
-	"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS" ]
+    	"kiss":{"path":"../kiss"}
+    }, 
+	"configurations":[
+	{
+		"name":"default",
+		"dependencies": {
+				"tinyredis": {"version" :"~>2.1.1" },
+				"libmemcached":{"version":"~>1.1.0"}
+		},
+		"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS"]
+	},
+	{
+		"name":"full",
+		"dependencies": {
+				"tinyredis": {"version" :"~>2.1.1" },
+				"libmemcached":{"version":"~>1.1.0"},
+				"rocksdb":{"version" :"~>0.0.7"}
+		},
+		"lflags": ["-L./lib"],  
+		"libs": ["rocksdb","zstd"], 
+		"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS" , "SUPPORT_ROCKSDB"]
+	},
+	{
+		"name":"none"
+	},
+	]
 }
