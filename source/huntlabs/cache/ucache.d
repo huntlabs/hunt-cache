@@ -14,7 +14,9 @@ import std.traits;
 class UCache
 {
 	//get
-	mixin(genfunc("Nullable!V get(V)(string key )" , "get!V(key);"));
+	mixin(genfunc("V get(V)(string key )" , "get!V(key);"));
+	//get_ex
+	mixin(genfunc("Nullable!V get_ex(V)(string key )" , "get_ex!V(key);"));
 	//getall
 	mixin(genfunc("Nullable!V[string] getall(V)(string[] keys)" , "getall!V(keys);"));
 	//containsKey

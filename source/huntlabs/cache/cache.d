@@ -8,12 +8,17 @@ import huntlabs.cache.l2cache;
 final class Cache(T )
 {
 
-	Nullable!V				get(V)(string key)
+	Nullable!V				get_ex(V)(string key)
 	{
 		if(_t !is null)
 			return _t.get!V(key);
 		else
 			return _t2.get!V(key);
+	}
+
+	V						get(V)(string key)
+	{
+		return cast(V)get_ex!V(key);
 	}
 
 	Nullable!V[string] 		getall(V)(string[] keys)

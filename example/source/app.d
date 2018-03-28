@@ -21,15 +21,15 @@ import std.conv;
 
 void example(UCache cache)
 {
-
+	import std.stdio;
 	//string
 
 	cache.put!string("test" , "teststring");
-	string val = cast(string)cache.get!string("test");
+	string val = cache.get!string("test");
 
 
 	cache.put!string("test1" ,"");
-	auto val2 = cache.get!string("test1");
+	auto val2 = cache.get_ex!string("test1");
 	assert(!val2.isnull);
 
 
@@ -40,18 +40,21 @@ void example(UCache cache)
 	stu1.address = "Tianlin Road 1016";
 	cache.put!Student("tom" , stu1);
 
-	Student stu = cast(Student)cache.get!Student("tom");
+	Student stu = cache.get!Student("tom");
 
-	Nullable!Student nstu = cache.get!Student("tom");
+	Nullable!Student nstu = cache.get_ex!Student("tom");
 	assert(!nstu.isnull);
 
 	Student stu2 = nstu.origin;
+	Student stu3 = cast(Student)nstu;
 	assert(stu2 == stu);
+	assert(stu2 == stu);
+	assert(stu3 == stu);
 
-	Nullable!Student nstu2 = cache.get!Student("jacker");
-	assert(nstu2.isnull);
+	auto nstu2 = cache.get!Student("jacker");
+	assert(nstu2 == Student.init);
 
-	Nullable!Student nstu3 = cache.get!Student("test");
+	Nullable!Student nstu3 = cache.get_ex!Student("test");
 	assert(nstu3.isnull);
 
 	//Grade
@@ -63,12 +66,12 @@ void example(UCache cache)
 	cache.put!Grade("13" , grade);
 
 
-	auto gra = cast(Grade)cache.get!Grade("tom");
+	auto gra = cache.get!Grade("tom");
 	assert(gra is null);
 
-	auto gra1 = cast(Grade)cache.get!Grade("13");
+	auto gra1 = cache.get!Grade("13");
 	assert(gra1 !is null);
-
+	writeln(gra1.gradeLevel , " " , gra1.gradeName , " " , gra1.arrStu);
 
 }
 
