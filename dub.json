@@ -1,7 +1,7 @@
 {
     "name": "cache",
     "dependencies": {
-    	"kiss":{"path":"../kiss"}
+    	"kiss":{"version":"~>0.2.4"}
     }, 
 	"configurations":[
 	{
