@@ -8,7 +8,7 @@ import std.string;
 
 version(SUPPORT_REDIS){
 
-	import tinyredis;
+	import redis;
 
 
 class RedisCache
