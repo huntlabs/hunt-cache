@@ -20,8 +20,8 @@
 	{
 		"name":"normal",
 		"dependencies": {
-				"dredis": {"path" :"~>0.0.8" },
-				"libmemcached":{"path":"~>1.1.1"}
+				"dredis": {"version" :"~>0.0.8" },
+				"libmemcached":{"version":"~>1.1.1"}
 		},
 		"versions":["SUPPORT_REDIS","SUPPORT_MEMCACHED"]
 	},
