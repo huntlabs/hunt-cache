@@ -2,7 +2,7 @@
 
 import huntlabs.cache.cache;
 import huntlabs.cache.store;
-import kiss.radix;
+import kiss.container.radix;
 import core.stdc.stdlib;
 import core.stdc.string;
 import huntlabs.cache.nullable;

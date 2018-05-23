@@ -117,6 +117,9 @@ unittest{
 
 	foreach(k ; allkeys)
 	{
+		import std.stdio;
+		writeln("test " ,k);
+
 		test(manger.getCache(k));
 	}
 
