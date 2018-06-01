@@ -19,6 +19,12 @@ class UCache
 	mixin(genfunc("Nullable!V get_ex(V)(string key )" , "get_ex!V(key);"));
 	//getall
 	mixin(genfunc("Nullable!V[string] getall(V)(string[] keys)" , "getall!V(keys);"));
+	mixin(genfunc("string get(string key )" , "get!string(key);"));
+	//get_ex
+	mixin(genfunc("Nullable!string get_ex(string key )" , "get_ex!string(key);"));
+	//getall
+	mixin(genfunc("Nullable!string[string] getall(string[] keys)" , "getall!string(keys);"));
+
 	//containsKey
 	mixin(genfunc("bool	containsKey(string key)" , "containsKey(key);"));
 	//put

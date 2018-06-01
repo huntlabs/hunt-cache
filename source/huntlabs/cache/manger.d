@@ -96,11 +96,11 @@ unittest{
 		string[string] map = ["key2":"value2" , "key3":"value3"];
 		cache.putAll(map);
 
-		string value = cast(string)cache.get!string("key1");
+		string value = cache.get("key1");
 		assert(value == "value1");
 		assert(cache.containsKey("key2"));
 		assert(!cache.putifAbsent("key1" , "value11"));
-		auto kvs = cache.getall!string(["key2" , "key3"]);
+		auto kvs = cache.getall(["key2" , "key3"]);
 		foreach(k,v ; kvs)
 		{
 			assert(map[k] == v.origin);
