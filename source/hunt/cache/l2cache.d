@@ -1,12 +1,11 @@
-﻿module huntlabs.cache.l2cache;
+﻿module hunt.cache.l2cache;
 
-import huntlabs.cache.memory;
-import huntlabs.cache.nullable;
-
+import hunt.cache.memory;
+import hunt.cache.nullable;
 
 final class L2Cache(T)
 {
-	Nullable!V				get(V)(string key)
+	Nullable!V get(V)(string key)
 	{
 		synchronized(this){
 			auto v1 = _memory.get!V(key);
@@ -23,7 +22,7 @@ final class L2Cache(T)
 		}
 	}
 
-	Nullable!V[string] 		getall(V)(string[] keys)
+	Nullable!V[string] getall(V)(string[] keys)
 	{
 		synchronized(this){
 			Nullable!V[string] mapv;
@@ -36,14 +35,14 @@ final class L2Cache(T)
 		}
 	}
 
-	bool					containsKey(string key)
+	bool containsKey(string key)
 	{
 		synchronized(this){
 			return _cache.containsKey(key);
 		}
 	}
 	
-	void 					put(V)(string key ,  V v , uint expired = 0)
+	void put(V)(string key ,  V v , uint expired = 0)
 	{
 		synchronized(this){
 			_cache.put!V(key , v  , expired);
@@ -51,7 +50,7 @@ final class L2Cache(T)
 		}
 	}
 
-	bool					putifAbsent(V)(string key ,  V v)
+	bool putifAbsent(V)(string key ,  V v)
 	{
 		synchronized(this){
 			if( _cache.putifAbsent!V(key , v))
@@ -64,7 +63,7 @@ final class L2Cache(T)
 		return false;
 	}
 
-	void					putAll(V)( V[string] maps , uint expired = 0)
+	void putAll(V)( V[string] maps , uint expired = 0)
 	{
 		synchronized(this){
 			_cache.putAll!V(maps , expired);
@@ -72,7 +71,7 @@ final class L2Cache(T)
 		}
 	}
 	
-	bool					remove(string key)
+	bool remove(string key)
 	{
 		synchronized(this){
 			auto ret = _cache.remove(key);
@@ -81,7 +80,7 @@ final class L2Cache(T)
 		}
 	}
 
-	void					removeAll(string[] keys)
+	void removeAll(string[] keys)
 	{
 		synchronized(this){
 			 _cache.removeAll(keys);
@@ -89,7 +88,7 @@ final class L2Cache(T)
 		}
 	}
 	
-	void 					clear()
+	void clear()
 	{
 		synchronized(this){
 		 	_cache.clear();

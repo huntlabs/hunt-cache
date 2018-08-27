@@ -1,5 +1,5 @@
 module example;
-import huntlabs.cache;
+import hunt.cache;
 
 
 struct Student

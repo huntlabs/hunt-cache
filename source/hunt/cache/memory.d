@@ -1,21 +1,16 @@
-﻿module huntlabs.cache.memory;
+﻿module hunt.cache.memory;
 
-import huntlabs.cache.cache;
-import huntlabs.cache.store;
+import hunt.cache.cache;
+import hunt.cache.store;
+import hunt.cache.nullable;
+
 import kiss.container.radix;
+
 import core.stdc.stdlib;
 import core.stdc.string;
-import huntlabs.cache.nullable;
-
-
-
-import std.stdio;
 import core.stdc.time;
 
-
-private:
-
-
+import std.stdio;
 
 public:
 class MemoryCache 
@@ -23,18 +18,19 @@ class MemoryCache
 
 //interface
 
-	Nullable!V		get(V)(string key)
+	Nullable!V get(V)(string key)
 	{
-
-		synchronized(this){
+		synchronized(this)
+		{
 			return get_inter!V(key);
 		}
 	}
 
-	Nullable!V[string] 		getall(V)(string[] keys)
+	Nullable!V[string] getall(V)(string[] keys)
 	{
 		Nullable!V[string] mapv;
-		synchronized(this){
+		synchronized(this)
+		{
 			foreach(k ; keys)
 			mapv[k] = get_inter!V(k);
 		}
@@ -42,23 +38,25 @@ class MemoryCache
 		return mapv;
 	}
 
-	bool			containsKey(string key)
+	bool containsKey(string key)
 	{
 		synchronized(this){
 			return find_inter(key , true);
 		}
 	}
 	
-	void 			put(V)(string key ,  V v , uint expired = 0)
+	void put(V)(string key ,  V v , uint expired = 0)
 	{
-		synchronized(this){
+		synchronized(this)
+		{
 			put_inter(key , v , expired);
 		}
 	}
 
-	bool			putifAbsent(V)(string key ,  V v)
+	bool putifAbsent(V)(string key ,  V v)
 	{
-		synchronized(this){
+		synchronized(this)
+		{
 			if(!find_inter(key , false))
 			{	
 				put_inter(key , v , 0);
@@ -68,7 +66,7 @@ class MemoryCache
 		}		
 	}
 
-	void			putAll(V)( V[string] maps , uint expired = 0)
+	void putAll(V)( V[string] maps , uint expired = 0)
 	{
 		synchronized(this){
 			foreach(k , v ; maps)
@@ -78,18 +76,18 @@ class MemoryCache
 		}
 	}
 	
-	bool			remove(string key)
+	bool remove(string key)
 	{
-		synchronized(this){
-
+		synchronized(this)
+		{
 			return remove_inter(key);
 		}
-	
 	}
 
-	void			removeAll(string[] keys)
+	void removeAll(string[] keys)
 	{
-		synchronized(this){
+		synchronized(this)
+		{
 			foreach( k ; keys)
 			{
 				remove_inter(k);
@@ -97,14 +95,13 @@ class MemoryCache
 		}
 	}
 
-	void 			clear()
+	void clear()
 	{
 		synchronized(this){
 			rax_data.Clear();
 			rax_time.Clear();
 		}
 	}
-
 
 	this(string args = "")
 	{
@@ -120,12 +117,10 @@ class MemoryCache
 
 protected:
 
-	rax				*rax_data;
-	rax				*rax_time;
+	rax *rax_data;
+	rax *rax_time;
 
-
-
-	bool			find_inter(string key , bool free)
+	bool find_inter(string key , bool free)
 	{
 		Nullable!uint tick = get_inter!uint(rax_time , key);
 		if(tick.isnull)
@@ -147,12 +142,9 @@ protected:
 				return true;
 			}
 		}
-	
 	}
 
-
-
-	Nullable!V		get_inter(V)(string key)
+	Nullable!V get_inter(V)(string key)
 	{
 		Nullable!uint tick =  get_inter!uint(rax_time , key);
 
@@ -167,22 +159,18 @@ protected:
 				remove_inter(key);
 				return Nullable!V.init;
 			}
-			else{
+			else
+			{
 				return get_inter!V(rax_data , key);
 			}
-			
 		}
-
 	}
 
-
-	Nullable!V		get_inter(V)(rax *r ,string key)
+	Nullable!V get_inter(V)(rax *r ,string key)
 	{
 		void *data;
 		if (!r.find(cast(ubyte[])key , data))
 			return Nullable!V.init;
-
-
 
 		uint len;
 		memcpy(&len , data , 4);
@@ -190,7 +178,6 @@ protected:
 		memcpy(byDatas.ptr , data + 4, len);
 		return DeserializeToObject!V(byDatas);
 	}
-
 
 	void put_inter(V)(string key , V v , uint expired)
 	{
@@ -202,7 +189,7 @@ protected:
 		}
 	}
 
-	void 			put_inter(V)(rax *r , string key ,  V v)
+	void put_inter(V)(rax *r , string key ,  V v)
 	{
 		byte[] data = SerializeToByte(v);
 
@@ -213,8 +200,7 @@ protected:
 		r.Insert(cast(ubyte[])key , value);
 	}
 
-
-	bool 			remove_inter(string key)
+	bool remove_inter(string key)
 	{
 		if(rax_data.Remove(cast(ubyte[])key))
 		{
@@ -225,12 +211,8 @@ protected:
 		return false;
 	}
 
-	bool			remove_inter(rax *r , string key)
+	bool remove_inter(rax *r , string key)
 	{	
 		return r.Remove(cast(ubyte[])key);	
-	} 
-
-
+	}
 }
-
-

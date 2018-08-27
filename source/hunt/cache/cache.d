@@ -1,14 +1,12 @@
-﻿module huntlabs.cache.cache;
+﻿module hunt.cache.cache;
 
-import huntlabs.cache.nullable;
-import huntlabs.cache.l2cache;
+import hunt.cache.nullable;
+import hunt.cache.l2cache;
 
-
-
-final class Cache(T )
+final class Cache(T)
 {
 
-	Nullable!V				get_ex(V)(string key)
+	Nullable!V get_ex(V)(string key)
 	{
 		if(_t !is null)
 			return _t.get!V(key);
@@ -16,12 +14,12 @@ final class Cache(T )
 			return _t2.get!V(key);
 	}
 
-	V						get(V)(string key)
+	V get(V)(string key)
 	{
 		return cast(V)get_ex!V(key);
 	}
 
-	Nullable!V[string] 		getall(V)(string[] keys)
+	Nullable!V[string] getall(V)(string[] keys)
 	{
 		if(_t !is null)
 			return _t.getall!V(keys);
@@ -29,7 +27,7 @@ final class Cache(T )
 			return _t2.getall!V(keys);
 	}
 
-	bool					containsKey(string key)
+	bool containsKey(string key)
 	{
 		if(_t !is null)
 			return _t.containsKey(key);
@@ -37,7 +35,7 @@ final class Cache(T )
 			return _t2.containsKey(key);
 	}
 
-	void 					put(V)(string key ,  V v , uint expired = 0)
+	void put(V)(string key ,  V v , uint expired = 0)
 	{
 		if(_t !is null)
 			return _t.put!V(key , v , expired);
@@ -45,7 +43,7 @@ final class Cache(T )
 			return _t2.put!V(key , v , expired);
 	}
 
-	bool					putifAbsent(V)(string key ,  V v)
+	bool putifAbsent(V)(string key ,  V v)
 	{
 		if( _t !is null)
 			return _t.putifAbsent!V(key , v);
@@ -53,7 +51,7 @@ final class Cache(T )
 			return _t2.putifAbsent!V(key , v);
 	}
 
-	void					putAll(V)( V[string] maps , uint expired = 0)
+	void putAll(V)( V[string] maps , uint expired = 0)
 	{
 		if(_t !is null)
 			return _t.putAll!V(maps , expired);
@@ -61,7 +59,7 @@ final class Cache(T )
 			return _t2.putAll!V(maps , expired);
 	}
 
-	bool					remove(string key)
+	bool remove(string key)
 	{
 		if(_t !is null)
 			return _t.remove(key);
@@ -69,7 +67,7 @@ final class Cache(T )
 			return _t2.remove(key);
 	}
 
-	void					removeAll(string[] keys)
+	void removeAll(string[] keys)
 	{
 		if(_t !is null)
 			return _t.removeAll(keys);
@@ -77,7 +75,7 @@ final class Cache(T )
 			return _t2.removeAll(keys);
 	}
 
-	void 					clear()
+	void clear()
 	{
 		if(_t !is null)
 			return _t.clear();
@@ -92,8 +90,6 @@ final class Cache(T )
 		else
 			_t = new T(args);
 	}
-
-
 
 private:
 

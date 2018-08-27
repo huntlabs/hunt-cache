@@ -1,8 +1,8 @@
-﻿module huntlabs.cache.rocksdb;
+﻿module hunt.cache.rocksdb;
 
-import huntlabs.cache.cache;
-import huntlabs.cache.nullable;
-import huntlabs.cache.store;
+import hunt.cache.cache;
+import hunt.cache.nullable;
+import hunt.cache.store;
 	
 
 import std.string;

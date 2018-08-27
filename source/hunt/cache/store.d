@@ -1,7 +1,7 @@
-﻿module huntlabs.cache.store;
+﻿module hunt.cache.store;
 
 import kiss.util.serialize;
-import huntlabs.cache.nullable;
+import hunt.cache.nullable;
 //only add header from Serialize for check meta info.
 //	meta
 //	object

@@ -1,20 +1,17 @@
-﻿module huntlabs.cache.memcached;
+﻿module hunt.cache.memcached;
 
-import huntlabs.cache.cache;
-import huntlabs.cache.store;
-import huntlabs.cache.nullable;
+import hunt.cache.cache;
+import hunt.cache.store;
+import hunt.cache.nullable;
 
+version(SUPPORT_MEMCACHED):
 
-version(SUPPORT_MEMCACHED){
-
-	import memcache.memcache;
-
-
+import memcache.memcache;
 
 class MemcachedCache
 {
 
-	Nullable!V				get(V)(string key)
+	Nullable!V get(V)(string key)
 	{
 			synchronized(this){
 				return get_inter!V(key);
@@ -135,5 +132,3 @@ protected:
 	
 	
 }
-}
-

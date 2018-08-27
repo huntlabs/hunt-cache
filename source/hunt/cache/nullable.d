@@ -1,4 +1,4 @@
-﻿module huntlabs.cache.nullable;
+﻿module hunt.cache.nullable;
 
 struct Nullable(T)
 {

@@ -1,5 +1,5 @@
-﻿module huntlabs.cache.manger;
-import huntlabs.cache.ucache;
+﻿module hunt.cache.manger;
+import hunt.cache.ucache;
 
 class CacheManger
 {

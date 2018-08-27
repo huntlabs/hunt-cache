@@ -1,15 +1,15 @@
-﻿module huntlabs.cache.ucache;
+﻿module hunt.cache.ucache;
 
-import huntlabs.cache.memory;
-import huntlabs.cache.memcached;
-import huntlabs.cache.redis;
-import huntlabs.cache.rocksdb;
-import huntlabs.cache.cache;
-import huntlabs.cache.nullable;
+import hunt.cache.memory;
+import hunt.cache.memcached;
+import hunt.cache.redis;
+import hunt.cache.rocksdb;
+import hunt.cache.cache;
+import hunt.cache.nullable;
+
 import std.conv;
 import std.stdio;
 import std.traits;
-
 
 class UCache
 {
@@ -131,7 +131,6 @@ private:
 		assert(0);
 	}
 
-	  
 	Cache!MemoryCache			_memory = null;
 	version(SUPPORT_REDIS)
 	Cache!RedisCache 			_redis = null;
@@ -140,6 +139,3 @@ private:
 	version(SUPPORT_ROCKSDB)
 	Cache!RocksdbCache			_rocksdb = null;
 };
-
-
-
