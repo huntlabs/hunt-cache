@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/huntlabs/cache.svg?branch=master)](https://travis-ci.org/huntlabs/cache)
+[![Build Status](https://travis-ci.org/huntlabs/hunt-cache.svg?branch=master)](https://travis-ci.org/huntlabs/hunt-cache)
 # UCache
 D language universal cache library.
 
