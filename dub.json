@@ -1,7 +1,7 @@
 {
     "name": "hunt-cache",
     "dependencies": {
-    	"kiss":{"version":"~>0.4.0"}
+    	"hunt": "~>1.0.0-beta.2"
     }, 
 	"description": "D language universal object cache library. include memory、redis、memcached、rocksdb",
     "copyright": "Copyright (C) 2015-2018, HuntLabs.cn",
