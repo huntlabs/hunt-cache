@@ -4,7 +4,7 @@ import hunt.cache.cache;
 import hunt.cache.store;
 import hunt.cache.nullable;
 
-import hunt.container.radix;
+import hunt.collection.Radix;
 
 import core.stdc.stdlib;
 import core.stdc.string;
