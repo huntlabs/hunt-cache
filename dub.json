@@ -1,43 +1,41 @@
 {
     "name": "hunt-cache",
     "dependencies": {
-    	"hunt": "~>1.0.0"
+        "hunt": "~>1.1.0"
     }, 
-	"description": "D language universal object cache library. include memory、redis、memcached、rocksdb",
-    "copyright": "Copyright (C) 2015-2018, HuntLabs.cn",
-    "authors": [
-        "zhangyuchun"
-    ],
+    "description": "D language universal object cache library. include memory、redis、memcached、rocksdb",
+    "copyright": "Copyright (C) 2015-2018, HuntLabs",
+    "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
-	"configurations":[
-		{
-			"name":"default",
-			"dependencies": {
-					"dredis": {"version" :"~>0.0.8" }
-			},
-			"versions":["SUPPORT_REDIS"]
-		},
-		{
-			"name":"normal",
-			"dependencies": {
-					"dredis": {"version" :"~>0.0.8" },
-					"libmemcached":{"version":"~>1.1.1"}
-			},
-			"versions":["SUPPORT_REDIS","SUPPORT_MEMCACHED"]
-		},
-		{
-			"name":"full",
-			"dependencies": {
-					"dredis": {"version" :"~>0.0.8" },
-					"libmemcached":{"version":"~>1.1.1"},
-					"rocksdb":{"version" :"~>0.0.7"}
-			},
-			"lflags": ["-L./lib"],  
-			"libs": ["rocksdb","zstd"], 
-			"versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS" , "SUPPORT_ROCKSDB"]
-		},
-		{
-			"name":"none"
-		}
-	]
+    "configurations":[
+        {
+            "name":"default",
+            "dependencies": {
+                    "dredis": {"version" :"~>0.0.8" }
+            },
+            "versions":["SUPPORT_REDIS"]
+        },
+        {
+            "name":"normal",
+            "dependencies": {
+                    "dredis": {"version" :"~>0.0.8" },
+                    "libmemcached":{"version":"~>1.1.1"}
+            },
+            "versions":["SUPPORT_REDIS","SUPPORT_MEMCACHED"]
+        },
+        {
+            "name":"full",
+            "dependencies": {
+                    "dredis": {"version" :"~>0.0.8" },
+                    "libmemcached":{"version":"~>1.1.1"},
+                    "rocksdb":{"version" :"~>0.0.7"}
+            },
+            "lflags": ["-L./lib"],  
+            "libs": ["rocksdb","zstd"], 
+            "versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS" , "SUPPORT_ROCKSDB"]
+        },
+        {
+            "name":"none"
+        }
+    ]
 }
