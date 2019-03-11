@@ -132,7 +132,12 @@ class RedisCache
 			args = "127.0.0.1:6379";
 
 		auto hp = args.split(":");
-		_redis = new Redis(hp[0] , to!ushort(hp[1]));
+		string pwd;
+		if(hp.length > 2)
+		{
+			pwd = hp[2];
+		}
+		_redis = new Redis(hp[0] , to!ushort(hp[1]), pwd);
 	}
 
 protected:
