@@ -8,11 +8,16 @@ D language universal cache library.
  * libmemcached
  * rocksdb
 
+ # Versions
+ * WITH_HUNT_REDIS
+ * WITH_HUNT_MEMCACHE
+ * WITH_HUNT_ROCKSDB
+
 # tips
 default support memory、redis.
 
 # example
-````d	
+````d
 struct Student
 {
 	ulong 		ID;
@@ -49,4 +54,3 @@ grade.arrStu ~= stu1;
 cache.put("13" , grade);
 auto grade1 = cache.get!Grade("13");
 ````	
-	
