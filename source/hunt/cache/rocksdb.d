@@ -1,6 +1,10 @@
 ﻿module hunt.cache.rocksdb;
 
-version (WITH_HUNT_ROCKSDB)  : import hunt.cache.cache;
+// dfmt off
+version (WITH_HUNT_ROCKSDB)  : 
+// dfmt on
+
+import hunt.cache.cache;
 import hunt.cache.nullable;
 import hunt.cache.store;
 
