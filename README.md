@@ -1,22 +1,22 @@
 [![Build Status](https://travis-ci.org/huntlabs/hunt-cache.svg?branch=master)](https://travis-ci.org/huntlabs/hunt-cache)
-# UCache
+# Hunt Cache
 D language universal cache library.
 
 # Support drivers
  * memory
  * redis
  * libmemcached
- * rocksdb
 
  # Versions
+ * WITH_HUNT_CACHE
  * WITH_HUNT_REDIS
  * WITH_HUNT_MEMCACHE
  * WITH_HUNT_ROCKSDB
 
-# tips
-default support memory、redis.
+# Tips
+Default using memory and redis drivers.
 
-# example
+# Sample code
 ````d
 struct Student
 {
