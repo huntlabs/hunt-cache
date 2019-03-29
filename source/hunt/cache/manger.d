@@ -62,7 +62,7 @@ unittest{
 	auto memory = manger.createCache(allkeys[0]);
 	auto memory_l2 = manger.createCache(allkeys[1] , "memory" , "" , true);
 
-	version(SUPPORT_REDIS)
+	version(WITH_HUNT_REDIS)
 	{
 		allkeys ~= ["redis" ,"redis_l2"];
 
@@ -70,7 +70,7 @@ unittest{
 		auto redis_l2 = manger.createCache(allkeys[$ - 1] , "redis" , "127.0.0.1:6379" , true);
 	}
 
-	version(SUPPORT_MEMCACHED)
+	version(WITH_HUNT_MEMCACHE)
 	{
 		allkeys ~= ["memcached" , "memcached_l2"];
 		auto memcached = manger.createCache(allkeys[$ - 2] , "memcached" , "--SERVER=127.0.0.1:11211" );

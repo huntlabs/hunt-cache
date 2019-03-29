@@ -48,12 +48,12 @@ class UCache
 		{
 			case "memory":
 				return new UCache(new Cache!MemoryCache(args , enableL2));
-				version(SUPPORT_REDIS)
+				version(WITH_HUNT_REDIS)
 				{
 					case "redis":
 					return new UCache(new Cache!RedisCache(args , enableL2));
 				}
-				version(SUPPORT_MEMCACHED)
+				version(WITH_HUNT_MEMCACHE)
 				{
 					case "memcached":
 					return new UCache(new Cache!MemcachedCache(args , enableL2));
@@ -76,12 +76,12 @@ private:
 	{
 		string f = callorigin ~ " { if(_memory !is null) return  _memory." ~ callfunc ;
         
-		version(SUPPORT_REDIS)
+		version(WITH_HUNT_REDIS)
 		{
 			f ~= " if(_redis !is null) return  _redis." ~ callfunc;
 		}
 
-		version(SUPPORT_MEMCACHED)
+		version(WITH_HUNT_MEMCACHE)
 		{
 			f ~= "if( _memcahed !is null) return _memcahed." ~ callfunc;
 		}
@@ -103,7 +103,7 @@ private:
 			_memory = cast(Cache!MemoryCache)obj;
 			return;
 		}
-		version(SUPPORT_REDIS)
+		version(WITH_HUNT_REDIS)
 		{
 			if(className == to!string(typeid(Cache!RedisCache)))
 			{
@@ -112,7 +112,7 @@ private:
 			}
 		}
 		
-		version(SUPPORT_MEMCACHED)
+		version(WITH_HUNT_MEMCACHE)
 		{ 
 			if(className == to!string(typeid(Cache!MemcachedCache)))
 			{	_memcahed = cast(Cache!MemcachedCache)(obj);
@@ -132,9 +132,9 @@ private:
 	}
 
 	Cache!MemoryCache			_memory = null;
-	version(SUPPORT_REDIS)
+	version(WITH_HUNT_REDIS)
 	Cache!RedisCache 			_redis = null;
-	version(SUPPORT_MEMCACHED)
+	version(WITH_HUNT_MEMCACHE)
 	Cache!MemcachedCache		_memcahed = null;
 	version(WITH_HUNT_ROCKSDB)
 	Cache!RocksdbCache			_rocksdb = null;

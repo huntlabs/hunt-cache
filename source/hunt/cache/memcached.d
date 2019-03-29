@@ -4,7 +4,7 @@ import hunt.cache.cache;
 import hunt.cache.store;
 import hunt.cache.nullable;
 
-version(SUPPORT_MEMCACHED):
+version(WITH_HUNT_MEMCACHE):
 
 import memcache.memcache;
 

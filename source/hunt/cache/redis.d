@@ -7,7 +7,7 @@ import hunt.cache.store;
 import std.conv;
 import std.string;
 
-version(SUPPORT_REDIS):
+version(WITH_HUNT_REDIS):
 
 import redis;
 
