@@ -3,8 +3,8 @@
     "dependencies": {
         "hunt" : "~>1.2.0-rc.3"
     }, 
-    "description": "D language universal object cache library. include memory、redis、memcached、rocksdb",
-    "copyright": "Copyright (C) 2015-2018, HuntLabs",
+    "description": "D language universal object cache library. include memory、redis、memcached",
+    "copyright": "Copyright (C) 2015-2019, HuntLabs",
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
     "configurations":[
@@ -22,17 +22,6 @@
                     "libmemcached":{"version":"~>1.1.1"}
             },
             "versions":["SUPPORT_REDIS","SUPPORT_MEMCACHED"]
-        },
-        {
-            "name":"full",
-            "dependencies": {
-                    "dredis": {"version" :"~>0.0.8" },
-                    "libmemcached":{"version":"~>1.1.1"},
-                    "rocksdb":{"version" :"~>0.0.7"}
-            },
-            "lflags": ["-L./lib"],  
-            "libs": ["rocksdb","zstd"], 
-            "versions":["SUPPORT_MEMCACHED" , "SUPPORT_REDIS" , "SUPPORT_ROCKSDB"]
         },
         {
             "name":"none"

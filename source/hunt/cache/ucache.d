@@ -58,7 +58,7 @@ class UCache
 					case "memcached":
 					return new UCache(new Cache!MemcachedCache(args , enableL2));
 				}
-				version(SUPPORT_ROCKSDB)
+				version(WITH_HUNT_ROCKSDB)
 				{
 					case "rocksdb":
 					return new UCache(new Cache!RocksdbCache(args , enableL2));
@@ -86,7 +86,7 @@ private:
 			f ~= "if( _memcahed !is null) return _memcahed." ~ callfunc;
 		}
 
-		version(SUPPORT_ROCKSDB)
+		version(WITH_HUNT_ROCKSDB)
 		{ 
 			f ~= "if(_rocksdb !is null) return _rocksdb." ~ callfunc ;
 		}
@@ -120,7 +120,7 @@ private:
 			}
 		}
 		
-		version(SUPPORT_ROCKSDB){
+		version(WITH_HUNT_ROCKSDB){
 			if(className == to!string(typeid(Cache!RocksdbCache)))
 			{	
 				_rocksdb = cast(Cache!RocksdbCache)(obj);
@@ -136,6 +136,6 @@ private:
 	Cache!RedisCache 			_redis = null;
 	version(SUPPORT_MEMCACHED)
 	Cache!MemcachedCache		_memcahed = null;
-	version(SUPPORT_ROCKSDB)
+	version(WITH_HUNT_ROCKSDB)
 	Cache!RocksdbCache			_rocksdb = null;
 };

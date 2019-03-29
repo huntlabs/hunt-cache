@@ -77,7 +77,7 @@ unittest{
 		auto memcached_l2 = manger.createCache(allkeys[$ -1] , "memcached" , "--SERVER=127.0.0.1:11211" , true);
 	}
 
-	version(SUPPORT_ROCKSDB)
+	version(WITH_HUNT_ROCKSDB)
 	{
 		allkeys ~= ["rocksdb" , "rocksdb_l2"];
 		auto rocksdb = manger.createCache(allkeys[$ - 2] , "rocksdb" , "/tmp/test1");
