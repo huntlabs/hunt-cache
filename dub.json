@@ -1,13 +1,14 @@
 {
     "name": "hunt-cache",
-    "dependencies": {
-        "hunt" : "~>1.2.0-rc.3"
-    }, 
+    "targetType": "sourceLibrary",
     "description": "D language universal object cache library. include memory、redis、memcached",
     "copyright": "Copyright (C) 2015-2019, HuntLabs",
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
     "versions": ["WITH_HUNT_CACHE"],
+    "dependencies": {
+        "hunt" : "~>1.2.0-rc.3"
+    }, 
     "configurations":[
         {
             "name":"default",
