@@ -1,7 +1,7 @@
 {
     "name": "example",
     "dependencies": {
-        "cache":{"path":"../"}
+        "hunt-cache":{"path":"../"}
     }, 
     "targetType":"executable"
     }
