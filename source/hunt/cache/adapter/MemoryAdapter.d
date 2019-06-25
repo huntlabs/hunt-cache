@@ -2,6 +2,7 @@
 
 import hunt.cache.adapter.Adapter;
 import hunt.cache.Store;
+
 import hunt.cache.Nullable;
 
 import hunt.collection.Radix;
@@ -12,12 +13,8 @@ import core.stdc.time;
 
 import std.stdio;
 
-public:
 class MemoryAdapter : Adapter
 {
-
-//interface
-
     Nullable!V get(V) (string key)
     {
         synchronized(this)
@@ -38,7 +35,7 @@ class MemoryAdapter : Adapter
         return mapv;
     }
 
-    bool has(string key)
+    bool hasKey(string key)
     {
         synchronized(this){
             return find_inter(key, true);
@@ -125,7 +122,7 @@ protected:
     bool find_inter(string key, bool free)
     {
         Nullable!uint tick = get_inter!uint(rax_time, key);
-        if(tick.isnull)
+        if(tick.isNull)
         {
             void *data;
             return rax_data.find(cast(ubyte[])key,data);
@@ -150,7 +147,7 @@ protected:
     {
         Nullable!uint tick =  get_inter!uint(rax_time, key);
 
-        if(tick.isnull)    //not set ttl
+        if(tick.isNull)    //not set ttl
         {
             return get_inter!V(rax_data, key);
         }

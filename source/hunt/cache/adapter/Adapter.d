@@ -8,13 +8,13 @@ interface Adapter
 
     Nullable!V[string] get(V) (string[] keys);
 
-    void set(T) (string key, T value);
+    void set(V) (string key, V value, uint expired);
 
     void set(V) (V[string] maps, uint expired);
 
     bool setIfAbsent(V) (string key, V value);
 
-    bool has(string key);
+    bool hasKey(string key);
 
     bool remove(string key);
 

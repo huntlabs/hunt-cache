@@ -5,16 +5,17 @@ version (WITH_HUNT_ROCKSDB)  :
 // dfmt on
 
 import hunt.cache.adapter.Adapter;
-import hunt.cache.Nullable;
 import hunt.cache.Store;
 import hunt.cache.CacheOption;
 
-import std.string;
 import core.time;
 import core.stdc.time;
 import core.stdc.string;
 import core.thread;
+
 import std.file;
+import std.string;
+import hunt.cache.Nullable;
 
 import rocksdb;
 
@@ -53,7 +54,7 @@ class RocksdbAdapter : Adapter
         }
     }
 
-    bool has(string key)
+    bool hasKey(string key)
 	{
         synchronized (this)
 		{

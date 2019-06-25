@@ -2,6 +2,7 @@
 
 import hunt.cache.adapter.MemoryAdapter;
 import hunt.cache.adapter.Adapter;
+
 import hunt.cache.Nullable;
 
 final class Cache
@@ -19,12 +20,12 @@ final class Cache
 			if (_memoryAdapter !is null)
 			{
 				auto v1 = _memoryAdapter.get!V(key);
-				if(!v1.isnull)
+				if(!v1.isNull)
 					return v1;
 			}
 
             auto v2 = _cacheAdapter.get!V(key);
-            if(v2.isnull)
+            if(v2.isNull)
                 return v2;
 
 			if (_memoryAdapter !is null)
@@ -50,18 +51,20 @@ final class Cache
         }
     }
 
-    bool has(string key)
+    bool hasKey(string key)
     {
-        synchronized(this){
-            return _cacheAdapter.has(key);
+        synchronized(this)
+		{
+            return _cacheAdapter.hasKey(key);
         }
     }
 
-    void set(V) (string key,  V v, uint expired = 0)
+    void set(V) (string key, V v, uint expired = 0)
     {
         synchronized(this)
         {
-            _cacheAdapter.set!V(key, v , expired);
+            _cacheAdapter.set!V(key, v, expired);
+
 			if (_memoryAdapter !is null)
 			{
             	_memoryAdapter.set!V(key, v, expired);

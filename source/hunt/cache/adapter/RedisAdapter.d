@@ -1,7 +1,6 @@
 ﻿module hunt.cache.adapter.RedisAdapter;
 
 import hunt.cache.adapter.Adapter;
-import hunt.cache.Nullable;
 import hunt.cache.Store;
 import hunt.cache.CacheOption;
 
@@ -9,6 +8,7 @@ import hunt.logging;
 
 import std.conv;
 import std.string;
+import hunt.cache.Nullable;
 
 version(WITH_HUNT_REDIS):
 
@@ -56,7 +56,7 @@ class RedisAdapter : Adapter
         }
     }
 
-    bool has(string key)
+    bool hasKey(string key)
     {
         synchronized(this)
         {

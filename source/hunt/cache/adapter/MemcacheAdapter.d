@@ -2,6 +2,7 @@
 
 import hunt.cache.adapter.Adapter;
 import hunt.cache.Store;
+
 import hunt.cache.Nullable;
 
 version(WITH_HUNT_MEMCACHE):
@@ -9,7 +10,7 @@ version(WITH_HUNT_MEMCACHE):
 import memcache.memcache;
 import hunt.cache.CacheOption;
 
-class MemcacheAdapter
+class MemcacheAdapter : Adapter
 {
     Nullable!V get(V) (string key)
     {
@@ -37,7 +38,7 @@ class MemcacheAdapter
 		}
     }
 	
-    bool has(string key)
+    bool hasKey(string key)
     {
 		//Memcache's bug not implement exist, use get inside of.
 		synchronized(this)
@@ -58,7 +59,7 @@ class MemcacheAdapter
     {
 		synchronized(this){
 
-			if(containsKey(key))
+			if(hasKey(key))
 				return false;
 
 			put_inter!V(key, v, 0);

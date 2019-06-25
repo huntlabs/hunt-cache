@@ -7,18 +7,19 @@ struct Nullable(T)
         mixin( "return _t."~s~"(i);");
     }
 
-    bool isnull() 
+    bool isNull() 
     {
-        return _isnull;
+        return _isNull;
     }
 
-    @property T origin(){
+    @property T origin()
+	{
         return _t;
     }
 
     void bind(T t)
     {
-        _isnull = false;
+        _isNull = false;
         _t = t;
     }
 
@@ -29,6 +30,6 @@ struct Nullable(T)
 
 private:
 
-    bool     _isnull = true;
-    T         _t;
+    bool _isNull = true;
+    T _t;
 }
