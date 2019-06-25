@@ -1,98 +1,144 @@
-﻿module hunt.cache.cache;
+﻿module hunt.cache.Cache;
 
-import hunt.cache.nullable;
-import hunt.cache.l2cache;
+import hunt.cache.adapter.MemoryAdapter;
+import hunt.cache.adapter.Adapter;
+import hunt.cache.Nullable;
 
-final class Cache(T)
+final class Cache
 {
+    this(Adapter cacheAdapter, MemoryAdapter memoryAdapter = null)
+    {
+        _memoryAdapter = memoryAdapter;
+        _cacheAdapter = cacheAdapter;
+    }
 
-	Nullable!V get_ex(V)(string key)
-	{
-		if(_t !is null)
-			return _t.get!V(key);
-		else
-			return _t2.get!V(key);
-	}
+    Nullable!V get(V) (string key)
+    {
+        synchronized(this)
+		{
+			if (_memoryAdapter !is null)
+			{
+				auto v1 = _memoryAdapter.get!V(key);
+				if(!v1.isnull)
+					return v1;
+			}
 
-	V get(V)(string key)
-	{
-		return cast(V)get_ex!V(key);
-	}
+            auto v2 = _cacheAdapter.get!V(key);
+            if(v2.isnull)
+                return v2;
 
-	Nullable!V[string] getall(V)(string[] keys)
-	{
-		if(_t !is null)
-			return _t.getall!V(keys);
-		else
-			return _t2.getall!V(keys);
-	}
+			if (_memoryAdapter !is null)
+			{
+            	_memoryAdapter.set!V(key, v2.origin);
+			}
 
-	bool containsKey(string key)
-	{
-		if(_t !is null)
-			return _t.containsKey(key);
-		else
-			return _t2.containsKey(key);
-	}
+            return v2;
+        }
+    }
 
-	void put(V)(string key ,  V v , uint expired = 0)
-	{
-		if(_t !is null)
-			return _t.put!V(key , v , expired);
-		else
-			return _t2.put!V(key , v , expired);
-	}
+    Nullable!V[string] getAll(V) (string[] keys)
+    {
+        synchronized(this)
+        {
+            Nullable!V[string] mapv;
+            foreach(k ; keys)
+            {
+                mapv[k] = get!V(k);
+            }
 
-	bool putifAbsent(V)(string key ,  V v)
-	{
-		if( _t !is null)
-			return _t.putifAbsent!V(key , v);
-		else
-			return _t2.putifAbsent!V(key , v);
-	}
+            return mapv;
+        }
+    }
 
-	void putAll(V)( V[string] maps , uint expired = 0)
-	{
-		if(_t !is null)
-			return _t.putAll!V(maps , expired);
-		else
-			return _t2.putAll!V(maps , expired);
-	}
+    bool has(string key)
+    {
+        synchronized(this){
+            return _cacheAdapter.has(key);
+        }
+    }
 
-	bool remove(string key)
-	{
-		if(_t !is null)
-			return _t.remove(key);
-		else
-			return _t2.remove(key);
-	}
+    void set(V) (string key,  V v, uint expired = 0)
+    {
+        synchronized(this)
+        {
+            _cacheAdapter.set!V(key, v , expired);
+			if (_memoryAdapter !is null)
+			{
+            	_memoryAdapter.set!V(key, v, expired);
+			}
+        }
+    }
 
-	void removeAll(string[] keys)
-	{
-		if(_t !is null)
-			return _t.removeAll(keys);
-		else
-			return _t2.removeAll(keys);
-	}
+    bool setIfAbsent(V) (string key,  V v)
+    {
+        synchronized(this)
+        {
+            if(_cacheAdapter.setIfAbsent!V(key, v))
+            {
+				if (_memoryAdapter !is null)
+				{
+					_memoryAdapter.set!V(key, v);
+				}
 
-	void clear()
-	{
-		if(_t !is null)
-			return _t.clear();
-		else
-			return _t2.clear();
-	}
+                return true;
+            }
+        }
 
-	this(string args , bool enableL2Cache )
-	{
-		if(enableL2Cache)
-			_t2 = new L2Cache!T(args);
-		else
-			_t = new T(args);
-	}
+        return false;
+    }
 
-private:
+    void set(V) ( V[string] maps, uint expired = 0)
+    {
+        synchronized(this)
+		{
+            _cacheAdapter.set!V(maps, expired);
+			if (_memoryAdapter !is null)
+			{
+           	 	_memoryAdapter.set!V(maps, expired);
+			}
+        }
+    }
 
-	T 			_t;
-	L2Cache!T   _t2;
+    bool remove(string key)
+    {
+        synchronized(this)
+		{
+            auto ret = _cacheAdapter.remove(key);
+			if (_memoryAdapter !is null)
+			{
+            	_memoryAdapter.remove(key);
+			}
+            return ret;
+        }
+    }
+
+    void remove(string[] keys)
+    {
+        synchronized(this){
+             _cacheAdapter.remove(keys);
+			if (_memoryAdapter !is null)
+			{
+            	_memoryAdapter.remove(keys);
+			}
+        }
+    }
+
+    void clear()
+    {
+        synchronized(this)
+		{
+             _cacheAdapter.clear();
+
+			if (_memoryAdapter !is null)
+			{
+            	_memoryAdapter.clear();
+			}
+        }
+    }
+
+    private
+    {
+        MemoryAdapter _memoryAdapter;
+        Adapter _cacheAdapter;
+    }
 }

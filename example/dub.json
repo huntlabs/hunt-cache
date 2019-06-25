@@ -1,7 +1,7 @@
 {
     "name": "example",
     "dependencies": {
-    	"cache":{"path":"../"}
+        "cache":{"path":"../"}
     }, 
-	"targetType":"executable"
-	}
+    "targetType":"executable"
+    }

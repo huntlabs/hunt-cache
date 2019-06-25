@@ -16,41 +16,75 @@ D language universal cache library.
 # Tips
 Default using memory and redis drivers.
 
-# Sample code
-````d
-struct Student
+# Sample code for Memory adapter
+```D
+import hunt.cache;
+import std.stdio;
+
+void main()
 {
-	ulong 		ID;
-	string 		name;
-	string		address;
+	auto cache = CacheFectory.create();
+
+	// define key
+	string key = "my_cache_key";
+	// set cache
+	cache.set(key, "My cache value.");
+
+	// get cache
+	string value = cache.get(key);
+
+	writeln(value);
+}
+```
+
+# Sample code for struct & class
+```D
+import hunt.cache;
+import std.stdio;
+
+struct User
+{
+	string name;
+	int age;
 }
 
-class Grade
+void main()
 {
-	int 		gradeLevel;
-	string  	gradeName;
-	Student[]	arrStu;
+	auto cache = CacheFectory.create();
+
+	// define key
+	string key = "user_info";
+
+	User user;
+	user.name = "zoujiaqing";
+	user.age = 99;
+
+	// set cache
+	cache.set(key, user);
+
+	// get cache
+	auto userinfo = cache.get!User(key);
+
+	writeln(userinfo.name);
 }
 
-auto cache = UCache.CreateUCache();
+```
 
-//string
-cache.put("test" , "test");
-string val = cache.get("test");
+# How to use Redis adapter?
+```D
+import hunt.cache;
+import std.stdio;
 
-//student.
-Student stu1;
-stu1.ID = 1;
-stu1.name = "tom";
-stu1.address = "Tianlin Road 1016";
-cache.put("tom" , stu1);
-auto stu = cache.get!Student("tom");
+void main()
+{
+	CacheOption option;
+	option.adapter = "redis";
+	option.redis.host = "127.0.0.1";
+	option.redis.port = 6379;
 
-//Grade
-Grade grade = new Grade();
-grade.gradeLevel = 12;
-grade.gradeName = "13";
-grade.arrStu ~= stu1;
-cache.put("13" , grade);
-auto grade1 = cache.get!Grade("13");
-````	
+	auto cache = CacheFectory.create(option);
+
+	// code for set / get ..
+}
+
+```
