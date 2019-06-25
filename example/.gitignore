@@ -1,0 +1,4 @@
+.dub/
+example
+example.a
+*.exe
