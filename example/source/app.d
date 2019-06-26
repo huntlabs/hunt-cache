@@ -2,6 +2,7 @@ module example;
 
 import hunt.logging;
 import hunt.cache;
+
 import std.stdio;
 
 struct User
@@ -25,9 +26,10 @@ void example(Cache cache)
 	cache.set(key, user);
 
 	// get value
-	auto userinfo = cache.get!User(key);
+	User userinfo = cache.get!User(key);
+	// User userinfo = cast(User)cache.get!User(key);
 
-	logDebug(userinfo.origin());
+	logDebug(userinfo);
 }
 
 void main()

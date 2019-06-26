@@ -23,7 +23,6 @@ class RocksdbAdapter : Adapter
 {
     this(CacheOption.rocksdb config)
 	{
-
         create(config.file);
     }
 

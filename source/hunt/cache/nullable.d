@@ -28,8 +28,8 @@ struct Nullable(T)
         return _t;
     }
 
-private:
-
-    bool _isNull = true;
     T _t;
+	alias _t this;
+
+    private bool _isNull = true;
 }
