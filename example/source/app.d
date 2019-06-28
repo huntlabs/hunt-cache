@@ -26,14 +26,17 @@ void example(Cache cache)
 	cache.set(key, user);
 
 	// get value
-	auto userinfo = cache.get!User(key);
+	User userinfo = cache.get!User(key);
 
 	logDebug(userinfo);
 }
 
 void main()
 {
-    auto cache = CacheFectory.create();
+	CacheOption option;
+	option.adapter = "redis";
+
+    auto cache = CacheFectory.create(option);
 
     example(cache);
 }
