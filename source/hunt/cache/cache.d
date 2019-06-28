@@ -56,7 +56,7 @@ final class Cache
         }
     }
 
-    Nullable!V get(V) (string key)
+    Nullable!V get(V = string) (string key)
     {
         switch(_type)
         {
@@ -104,7 +104,7 @@ final class Cache
     }
 
 
-    Nullable!V[string] get(V) (string[] keys)
+    Nullable!V[string] get(V = string) (string[] keys)
     {
         switch(_type)
         {
