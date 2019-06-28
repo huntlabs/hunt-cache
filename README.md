@@ -63,7 +63,7 @@ void main()
     cache.set(key, user);
 
     // get cache
-    auto userinfo = cache.get!User(key);
+    User userinfo = cache.get!User(key);
 
     writeln(userinfo.name);
 }
