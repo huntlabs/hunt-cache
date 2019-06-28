@@ -6,18 +6,18 @@ import hunt.cache.adapter;
 
 class CacheFectory
 {
-	static Cache create()
-	{
-		return new Cache(new MemoryAdapter);
-	}
+    static Cache create()
+    {
+        return new Cache(new MemoryAdapter);
+    }
 
     static Cache create(CacheOption option)
     {
-		MemoryAdapter memoryAdapter;
-		if (option.l2 || option.adapter == "memory")
-		{
-			memoryAdapter = new MemoryAdapter;
-		}
+        MemoryAdapter memoryAdapter;
+        if (option.l2 || option.adapter == "memory")
+        {
+            memoryAdapter = new MemoryAdapter;
+        }
 
         switch(option.adapter)
         {

@@ -13,7 +13,7 @@ struct Nullable(T)
     }
 
     @property T origin()
-	{
+    {
         return _t;
     }
 
@@ -29,7 +29,7 @@ struct Nullable(T)
     }
 
     T _t;
-	alias _t this;
+    alias _t this;
 
     private bool _isNull = true;
 }

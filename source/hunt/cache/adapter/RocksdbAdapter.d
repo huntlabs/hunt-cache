@@ -22,12 +22,12 @@ import rocksdb;
 class RocksdbAdapter : Adapter
 {
     this(CacheOption.rocksdb config)
-	{
+    {
         create(config.file);
     }
 
     ~this()
-	{
+    {
         _rocksdb.close();
     }
 
@@ -42,7 +42,7 @@ class RocksdbAdapter : Adapter
     }
 
     Nullable!V[string] getAll(V) (string[] key)
-	{
+    {
         synchronized (this) {
             Nullable!V[string] mapv;
             ubyte[][] datas = _rocksdb.multiGet(cast(ubyte[][]) key);
@@ -54,9 +54,9 @@ class RocksdbAdapter : Adapter
     }
 
     bool hasKey(string key)
-	{
+    {
         synchronized (this)
-		{
+        {
             auto data = _rocksdb.get(cast(ubyte[]) key);
             if (data == null)
                 return false;
@@ -69,7 +69,7 @@ class RocksdbAdapter : Adapter
     }
 
     void set(V) (string key, V v, uint expired = 0)
-	{
+    {
         synchronized (this) {
             _rocksdb.put(cast(ubyte[]) key,
                     generator_expired(expired) ~ cast(ubyte[]) SerializeToByte!V(v));
@@ -78,7 +78,7 @@ class RocksdbAdapter : Adapter
 
     // rocksdb no putifaabsent, so this function not atomic.
     bool setIfAbsent(V) (string key, V v)
-	{
+    {
         synchronized (this) {
             auto data = _rocksdb.get(cast(ubyte[]) key);
             if (data == null || check_is_expired(data)) {
@@ -90,7 +90,7 @@ class RocksdbAdapter : Adapter
     }
 
     void set(V) (V[string] maps, uint expired)
-	{
+    {
         synchronized (this) {
             string[] datas;
             if (maps.length == 0)
@@ -104,7 +104,7 @@ class RocksdbAdapter : Adapter
     }
 
     bool remove(string key)
-	{
+    {
         synchronized (this) {
             // rocksdb's remove api not return the value.
             auto data = _rocksdb.get(cast(ubyte[]) key);
