@@ -26,8 +26,7 @@ void example(Cache cache)
 	cache.set(key, user);
 
 	// get value
-	User userinfo = cache.get!User(key);
-	// User userinfo = cast(User)cache.get!User(key);
+	auto userinfo = cache.get!User(key);
 
 	logDebug(userinfo);
 }
