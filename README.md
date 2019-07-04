@@ -1,24 +1,25 @@
 [![Build Status](https://travis-ci.org/huntlabs/hunt-cache.svg?branch=master)](https://travis-ci.org/huntlabs/hunt-cache)
-# Hunt Cache
-D language universal cache library.
+## Hunt Cache
+Universal cache library for D programming language.
 
-# Support drivers
+## Support backend
  * memory
  * redis
  * libmemcached
 
- # Versions
+## Versions
  * WITH_HUNT_CACHE
  * WITH_HUNT_REDIS
  * WITH_HUNT_MEMCACHE
  * WITH_HUNT_ROCKSDB
 
-# Tips
-Default using memory and redis drivers.
+## Tips
+Default support memory and redis drivers.
 
-# Sample code for Memory adapter
+## Sample code for Memory adapter
 ```D
 import hunt.cache;
+
 import std.stdio;
 
 void main()
@@ -37,9 +38,10 @@ void main()
 }
 ```
 
-# Sample code for struct & class
+## Sample code for struct & class
 ```D
 import hunt.cache;
+
 import std.stdio;
 
 struct User
@@ -70,9 +72,10 @@ void main()
 
 ```
 
-# How to use Redis adapter?
+## How to use Redis adapter?
 ```D
 import hunt.cache;
+
 import std.stdio;
 
 void main()

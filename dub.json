@@ -1,7 +1,7 @@
 {
     "name": "hunt-cache",
     "targetType": "library",
-    "description": "D language universal object cache library. include memory、redis、memcached",
+    "description": "Cache library for D. Support memory、redis、memcached backend.",
     "copyright": "Copyright (C) 2015-2019, HuntLabs",
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
@@ -28,3 +28,4 @@
         }
     ]
 }
+
