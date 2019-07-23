@@ -12,7 +12,7 @@ import hunt.cache.Nullable;
 
 version(WITH_HUNT_REDIS):
 
-import redis;
+import hunt.redis;
 
 class RedisAdapter : Adapter
 {
@@ -20,7 +20,12 @@ class RedisAdapter : Adapter
     {
         try
         {
-            _redis = new Redis(config.host, config.port, config.password);
+            _redis = new Redis(config.host, config.port);
+
+            _redis.connect();
+
+            if (config.password.length > 0)
+                redis.auth(config.password);
         }
         catch (Exception e)
         {
@@ -56,11 +61,11 @@ class RedisAdapter : Adapter
         }
     }
 
-    bool hasKey(string key)
+    int hasKey(string key)
     {
         synchronized(this)
         {
-            return _redis.send!bool("exists", key);
+            return _redis.exists(key);
         }
     }
 
@@ -69,9 +74,9 @@ class RedisAdapter : Adapter
         synchronized(this)
         {
             if( expired == 0)
-                _redis.send("set", key, cast(string)SerializeToByte(v));
+                _redis.set(key, cast(string)SerializeToByte(v));
             else
-                _redis.send("setex", key, expired, cast(string)SerializeToByte(v));
+                _redis.setex(key, expired, cast(string)SerializeToByte(v));
         }
     }
 
@@ -79,33 +84,27 @@ class RedisAdapter : Adapter
     {
         synchronized(this)
         {
-                return _redis.send!bool("setnx", key, cast(string)SerializeToByte(v)) == 1;        
+            return _redis.send!bool("setnx", key, cast(string)SerializeToByte(v)) == 1;        
         }
     }
 
     void set(V) (V[string] maps, uint expired)
     {
-        synchronized(this){
+        synchronized(this)
+        {
             if(maps.length == 0)
-            return;
+                return;
 
             if(expired == 0)
             {
-                string cmds = "mset ";
-                foreach(k, v ; maps)
-                {
-                    cmds ~= k ~ " " ~ cast(string)SerializeToByte(v) ~ " ";
-                }
-                _redis.send(cmds);
+                _redis.mset(maps);
             }
             else
             {
-                string[] cmds;
-                foreach( k,v ; maps){
-                    cmds ~= "setex " ~ k ~ " " ~ to!string(expired) ~ " " ~ cast(string)SerializeToByte(v);
+                foreach( k, v ; maps)
+                {
+                    _redis.set(k, expired, cast(string)SerializeToByte(v));
                 }
-
-                _redis.pipeline(cmds);
             }
         }
     }
@@ -114,7 +113,7 @@ class RedisAdapter : Adapter
     {
         synchronized(this)
         {
-            return _redis.send!bool("del", key);
+            return _redis.del(key);
         }
     }
 
@@ -123,13 +122,11 @@ class RedisAdapter : Adapter
         synchronized(this)
         {
             if( keys.length == 0)
-            return ;
+                return ;
 
-            string[] cmds;
-            foreach(k ; keys){
-                cmds ~= "del " ~ k;
+            foreach(key ; keys){
+                _redis.del(key);
             }
-            _redis.pipeline(cmds);
         }
     }
 
@@ -137,7 +134,7 @@ class RedisAdapter : Adapter
     {
         synchronized(this)
         {
-            _redis.send("flushdb");
+            _redis.flushAll();
         }
     }
 
