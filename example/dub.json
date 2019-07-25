@@ -1,7 +1,12 @@
 {
     "name": "example",
     "dependencies": {
-        "hunt-cache":{"path":"../"}
-    }, 
-    "targetType":"executable"
-    }
+        "hunt-cache": {
+            "path": "../"
+        }
+    },
+    "targetType": "executable",
+	"versions": [
+		"HUNT_DEBUG", "HUNT_REDIS_DEBUG", "HUNT_IO_MORE1"
+	]
+}
