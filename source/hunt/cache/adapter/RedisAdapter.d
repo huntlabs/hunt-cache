@@ -6,11 +6,10 @@ import hunt.cache.CacheOption;
 
 import hunt.logging;
 
+import std.array;
 import std.conv;
 import std.string;
 import hunt.cache.Nullable;
-
-version(WITH_HUNT_REDIS):
 
 import hunt.redis;
 
@@ -24,8 +23,8 @@ class RedisAdapter : Adapter
 
             _redis.connect();
 
-            if (config.password.length > 0)
-                redis.auth(config.password);
+            if (!config.password.empty())
+                _redis.auth(config.password);
         }
         catch (Exception e)
         {
@@ -37,7 +36,7 @@ class RedisAdapter : Adapter
     {
         synchronized(this)
         {
-            string data = _redis.send!string("get", key);
+            string data = _redis.get(key);
             return DeserializeToObject!V(cast(byte[])data);
         }
     }
@@ -50,9 +49,9 @@ class RedisAdapter : Adapter
             if( keys.length == 0)
                 return mapv;
 
-            Response r = _redis.send("mget", keys);
+            List!(string) r = _redis.mget(keys);
 
-            foreach(i, v ; r.values)
+            foreach(i, v ; r)
             {
                 mapv[keys[i]] = DeserializeToObject!V(cast(byte[])v);
             }
@@ -61,7 +60,7 @@ class RedisAdapter : Adapter
         }
     }
 
-    int hasKey(string key)
+    bool hasKey(string key)
     {
         synchronized(this)
         {
@@ -84,7 +83,7 @@ class RedisAdapter : Adapter
     {
         synchronized(this)
         {
-            return _redis.send!bool("setnx", key, cast(string)SerializeToByte(v)) == 1;        
+            return _redis.setnx(key, cast(string)SerializeToByte(v)) == 1;        
         }
     }
 
@@ -113,7 +112,7 @@ class RedisAdapter : Adapter
     {
         synchronized(this)
         {
-            return _redis.del(key);
+            return _redis.del(key) > 0;
         }
     }
 

@@ -2,29 +2,37 @@ module example;
 
 import hunt.cache;
 import hunt.logging;
+import hunt.net.NetUtil;
 
-struct User
-{
+struct User {
     string name;
     int age;
 }
 
-void main()
-{
-    auto cache = CacheFectory.create();
+void main() {
+    CacheOption option;
+    option.adapter = AvaliableAdapter.Redis;
+    option.redis.host = "10.1.222.120";
+    option.redis.password = "foobared";
+
+    auto cache = CacheFectory.create(option);
 
     // define key
     string key = "userinfo";
 
     User user;
-    user.name = "zoujiaqing";
-    user.age = 99;
+    user.name = "putao";
+    user.age = 23;
 
-    // set value
-    cache.set(key, user);
+    try {
+        // set value
+        cache.set(key, user, 10);
 
-    // get value
-    User userinfo = cache.get!User(key);
+        // get value
+        User userinfo = cache.get!User(key);
 
-    logDebug(userinfo);
+        logDebug(userinfo);
+    } catch (Exception ex) {
+        warning(ex);
+    }
 }

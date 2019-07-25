@@ -1,5 +1,5 @@
 .dub/
-dub.selections.json
+dub.*.json
 cache-test-default
 libhunt-cache.a
 hunt-cache-test-default
