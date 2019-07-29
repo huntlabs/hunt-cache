@@ -1,17 +1,16 @@
 ﻿module hunt.cache.adapter.RedisAdapter;
 
 import hunt.cache.adapter.Adapter;
-import hunt.cache.Store;
 import hunt.cache.CacheOption;
+import hunt.cache.Nullable;
+import hunt.cache.Store;
 
 import hunt.logging;
+import hunt.redis;
 
 import std.array;
 import std.conv;
 import std.string;
-import hunt.cache.Nullable;
-
-import hunt.redis;
 
 class RedisAdapter : Adapter
 {
@@ -20,7 +19,6 @@ class RedisAdapter : Adapter
         try
         {
             _redis = new Redis(config.host, config.port);
-
             _redis.connect();
 
             if (!config.password.empty())
