@@ -80,7 +80,7 @@ final class Cache
         }
     }
 
-    Nullable!V get(A, V) (string key)
+    private Nullable!V get(A, V) (string key)
     {
         synchronized(this)
         {
@@ -132,7 +132,7 @@ final class Cache
         }
     }
 
-    Nullable!V[string] get(A, V) (string[] keys)
+    private Nullable!V[string] get(A, V) (string[] keys)
     {
         synchronized(this)
         {
@@ -206,7 +206,7 @@ final class Cache
         }
     }
 
-    void set(A, V) (string key, V v, uint expired = 0)
+    private void set(A, V) (string key, V v, uint expired = 0)
     {
         synchronized(this)
         {
@@ -254,7 +254,7 @@ final class Cache
         }
     }
 
-    void set(A, V) (V[string] maps, uint expired = 0)
+    private void set(A, V) (V[string] maps, uint expired = 0)
     {
         synchronized(this)
         {
@@ -291,7 +291,7 @@ final class Cache
         }
     }
 
-    bool remove(A)(string key)
+    private bool remove(A)(string key)
     {
         synchronized(this)
         {
@@ -335,7 +335,7 @@ final class Cache
         }
     }
 
-    void remove(A)(string[] keys)
+    private void remove(A)(string[] keys)
     {
         synchronized(this)
         {
@@ -378,7 +378,7 @@ final class Cache
         }
     }
 
-    void clear(A)()
+    private void clear(A)()
     {
         synchronized(this)
         {
@@ -391,7 +391,7 @@ final class Cache
         }
     }
 
-    A cacheAdapter(A)()
+    private A cacheAdapter(A)()
     {
         switch(_type)
         {
