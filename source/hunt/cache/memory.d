@@ -3,8 +3,7 @@
 import hunt.cache.cache;
 import hunt.cache.store;
 import hunt.cache.nullable;
-
-import hunt.collection.Radix;
+import hunt.cache.Radix;
 
 import core.stdc.stdlib;
 import core.stdc.string;
