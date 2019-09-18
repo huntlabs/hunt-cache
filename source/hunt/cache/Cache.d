@@ -1,7 +1,7 @@
 ﻿module hunt.cache.Cache;
 
 import hunt.cache.adapter;
-
+import hunt.cache.Defined;
 import hunt.cache.Nullable;
 
 import std.conv : to;
@@ -21,14 +21,14 @@ final class Cache
         if(className == to!string(typeid(MemoryAdapter)))
         {
             _memoryAdapter = cast(MemoryAdapter)adapterObject;
-            _type = ADAPTER_TYPE.MEMORY_ADAPTER;
+            _type = CACHE_ADAPTER.MEMORY;
             return;
         }
 
         if(className == to!string(typeid(RedisAdapter)))
         {
             _redisAdapter = cast(RedisAdapter)adapterObject;
-            _type = ADAPTER_TYPE.REDIS_ADAPTER;
+            _type = CACHE_ADAPTER.REDIS;
             return;
         }
         
@@ -37,7 +37,7 @@ final class Cache
             if(className == to!string(typeid(MemcacheAdapter)))
             {
                 _memcacheAdapter = cast(MemcacheAdapter)(adapterObject);
-                _type = ADAPTER_TYPE.MEMCACHE_ADAPTER;
+                _type = CACHE_ADAPTER.MEMCACHE_ADAPTER;
                 return;
             }
         }
@@ -47,7 +47,7 @@ final class Cache
             if(className == to!string(typeid(RocksdbAdapter)))
             {    
                 _rocksdbAdapter = cast(RocksdbAdapter)(adapterObject);
-                _type = ADAPTER_TYPE.ROCKSDB_ADAPTER;
+                _type = CACHE_ADAPTER.ROCKSDB;
                 return;
             }
         }
@@ -57,21 +57,21 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return get!(MemoryAdapter, V)(key);
             
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return get!(RedisAdapter, V)(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return get!(MemcacheAdapter, V)(key);
             }
 
             version(WITH_HUNT_ROCKSDB)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return get!(RocksdbAdapter, V)(key);
             }
             
@@ -109,21 +109,21 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return get!(MemoryAdapter, V)(keys);
 
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return get!(RedisAdapter, V)(keys);
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return get!(MemcacheAdapter, V)(keys);
             }
 
             version(WITH_HUNT_ROCKSDB)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return get!(RocksdbAdapter, V)(keys);
             }
             
@@ -150,20 +150,20 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return hasKey!MemoryAdapter(key);
 
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return hasKey!RedisAdapter(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return hasKey!MemcacheAdapter(key);
             }
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return hasKey!RocksdbAdapter(key);
             }
             default:
@@ -183,21 +183,21 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return set!(MemoryAdapter, V)(key, v, expired);
             
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return set!(RedisAdapter, V)(key, v, expired);
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return set!(MemcacheAdapter, V)(key, v, expired);
             }
 
             version(WITH_HUNT_ROCKSDB)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return set!(RocksdbAdapter, V)(key, v, expired);
             }
 
@@ -241,13 +241,13 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return set!(MemoryAdapter, V)(maps, expired);
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return set!(RedisAdapter, V)(maps, expired);
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return set!(MemcacheAdapter, V)(maps, expired);
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return set!(RocksdbAdapter, V)(maps, expired);
             default:
                 return set!(MemoryAdapter, V)(maps, expired);
@@ -270,20 +270,20 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return remove!MemoryAdapter(key);
 
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return remove!RedisAdapter(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return remove!MemcacheAdapter(key);
             }
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return remove!RocksdbAdapter(key);
             }
             default:
@@ -308,24 +308,24 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 remove!MemoryAdapter(keys);
                 break;
 
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 remove!RedisAdapter(keys);
                 break;
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 remove!MemcacheAdapter(keys);
                 break;
             }
 
             version(WITH_HUNT_ROCKSDB)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 remove!RocksdbAdapter(keys);
                 break;
             }
@@ -351,24 +351,24 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 clear!MemoryAdapter();
                 break;
             
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 clear!RedisAdapter();
                 break;
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 clear!MemcacheAdapter();
                 break;
             }
 
             version(WITH_HUNT_ROCKSDB)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 clear!RocksdbAdapter();
                 break;
             }
@@ -395,20 +395,20 @@ final class Cache
     {
         switch(_type)
         {
-            case ADAPTER_TYPE.MEMORY_ADAPTER:
+            case CACHE_ADAPTER.MEMORY:
                 return cast(A)_memoryAdapter;
 
-            case ADAPTER_TYPE.REDIS_ADAPTER:
+            case CACHE_ADAPTER.REDIS:
                 return cast(A)_redisAdapter;
 
             version(WITH_HUNT_MEMCACHE)
             {
-            case ADAPTER_TYPE.MEMCACHE_ADAPTER:
+            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return cast(A)_memcacheAdapter;
             }
             version(WITH_HUNT_ROCKSDB)
             {
-            case ADAPTER_TYPE.ROCKSDB_ADAPTER:
+            case CACHE_ADAPTER.ROCKSDB:
                 return cast(A)_rocksdbAdapter;
             }
             default:
@@ -425,14 +425,6 @@ final class Cache
         version(WITH_HUNT_MEMCACHE) MemcacheAdapter _memcacheAdapter;
         version(WITH_HUNT_ROCKSDB) RocksdbAdapter _rocksdbAdapter;
 
-        ADAPTER_TYPE _type;
-
-        enum ADAPTER_TYPE
-        {
-            MEMORY_ADAPTER,
-            REDIS_ADAPTER,
-            MEMCACHE_ADAPTER,
-            ROCKSDB_ADAPTER
-        }
+        CACHE_ADAPTER _type;
     }
 }

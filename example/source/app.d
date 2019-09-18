@@ -11,7 +11,7 @@ struct User {
 
 void main() {
     CacheOption option;
-    option.adapter = AvaliableAdapter.Redis;
+    option.adapter = AdapterType.REDIS;
     option.redis.host = "10.1.222.120";
     option.redis.password = "foobared";
 

@@ -2,15 +2,8 @@
 
 import hunt.cache.Cache;
 import hunt.cache.CacheOption;
+import hunt.cache.Defined;
 import hunt.cache.adapter;
-
-
-enum AvaliableAdapter {
-    Memory = "memory",
-    Redis = "redis",
-    Memcache = "memcache",
-    Rocksdb = "rocksdb"
-}
 
 class CacheFectory
 {
@@ -22,27 +15,27 @@ class CacheFectory
     static Cache create(CacheOption option)
     {
         MemoryAdapter memoryAdapter;
-        if (option.l2 || option.adapter == "memory")
+        if (option.l2 || option.adapter == AdapterType.MEMORY)
         {
             memoryAdapter = new MemoryAdapter;
         }
 
         switch(option.adapter)
         {
-            case "memory":
+            case AdapterType.MEMORY:
                 return new Cache(memoryAdapter);
 
-            case "redis":
+            case AdapterType.REDIS:
             return new Cache(new RedisAdapter(option.redis), memoryAdapter);
 
             version(WITH_HUNT_MEMCACHE)
             {
-                case "memcache":
+                case AdapterType.MEMCACHE:
                 return new Cache(new MemcacheAdapter(option.memcache), memoryAdapter);
             }
             version(WITH_HUNT_ROCKSDB)
             {
-                case "rocksdb":
+                case AdapterType.ROCKSDB:
                 return new Cache(new RocksdbAdapter(option.rocksdb), memoryAdapter);
             }
             default:

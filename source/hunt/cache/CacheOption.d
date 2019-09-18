@@ -1,11 +1,14 @@
 module hunt.cache.CacheOption;
 
+import hunt.cache.Defined;
+
 struct CacheOption
 {
     string adapter = "memory";
+    // CACHE_ADAPTER adapter = CACHE_ADAPTER.MEMORY;
 
     bool l2 = false;
-    
+
     uint maxEntriesLocalHeap = 10000;
     bool eternal = false;
     uint timeToIdleSeconds = 3600;
