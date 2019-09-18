@@ -97,27 +97,27 @@ class MemoryAdapter : Adapter
     {
         synchronized(this)
         {
-            rax_data.Clear();
-            rax_time.Clear();
+            rax_data.clear();
+            rax_time.clear();
         }
     }
 
     this()
     {
-        rax_data = rax.New();
-        rax_time = rax.New();
+        rax_data = Radix.create();
+        rax_time = Radix.create();
     }
 
     ~this()
     {
-        rax.Free(rax_data);
-        rax.Free(rax_time);
+        Radix.free(rax_data);
+        Radix.free(rax_time);
     }
 
 protected:
 
-    rax *rax_data;
-    rax *rax_time;
+    Radix *rax_data;
+    Radix *rax_time;
 
     bool find_inter(string key, bool free)
     {
@@ -165,7 +165,7 @@ protected:
         }
     }
 
-    Nullable!V get_inter(V) (rax *r,string key)
+    Nullable!V get_inter(V) (Radix *r,string key)
     {
         void *data;
         if (!r.find(cast(ubyte[])key, data))
@@ -188,7 +188,7 @@ protected:
         }
     }
 
-    void put_inter(V) (rax *r, string key,  V v)
+    void put_inter(V) (Radix *r, string key,  V v)
     {
         byte[] data = SerializeToByte(v);
 
@@ -196,22 +196,22 @@ protected:
         uint len = cast(uint) data.length;
         memcpy(value, &len, 4);
         memcpy(value + 4, data.ptr, data.length);
-        r.Insert(cast(ubyte[])key, value);
+        r.insert(cast(ubyte[])key, value);
     }
 
     bool remove_inter(string key)
     {
-        if(rax_data.Remove(cast(ubyte[])key))
+        if(rax_data.remove(cast(ubyte[])key))
         {
-            rax_time.Remove(cast(ubyte[])key);
+            rax_time.remove(cast(ubyte[])key);
             return true;
         }
 
         return false;
     }
 
-    bool remove_inter(rax *r, string key)
+    bool remove_inter(Radix *r, string key)
     {    
-        return r.Remove(cast(ubyte[])key);    
+        return r.remove(cast(ubyte[])key);    
     }
 }
