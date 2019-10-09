@@ -47,85 +47,85 @@ private:
 }
 
 
-unittest{
+// unittest{
 
-	import core.thread;
-	import std.algorithm;
-	import std.stdio;
-
-
-	CacheManger manger = new CacheManger();
-
-	//test manger.
-	string[] allkeys = ["memory" , "memory_l2"];
-
-	auto memory = manger.createCache(allkeys[0]);
-	auto memory_l2 = manger.createCache(allkeys[1] , "memory" , "" , true);
-
-	version(WITH_HUNT_REDIS)
-	{
-		allkeys ~= ["redis" ,"redis_l2"];
-
-		auto redis = manger.createCache(allkeys[$ - 2] , "redis" , "127.0.0.1:6379");
-		auto redis_l2 = manger.createCache(allkeys[$ - 1] , "redis" , "127.0.0.1:6379" , true);
-	}
-
-	version(WITH_HUNT_MEMCACHE)
-	{
-		allkeys ~= ["memcached" , "memcached_l2"];
-		auto memcached = manger.createCache(allkeys[$ - 2] , "memcached" , "--SERVER=127.0.0.1:11211" );
-		auto memcached_l2 = manger.createCache(allkeys[$ -1] , "memcached" , "--SERVER=127.0.0.1:11211" , true);
-	}
-
-	version(WITH_HUNT_ROCKSDB)
-	{
-		allkeys ~= ["rocksdb" , "rocksdb_l2"];
-		auto rocksdb = manger.createCache(allkeys[$ - 2] , "rocksdb" , "/tmp/test1");
-		auto rocksdb_l2 = manger.createCache(allkeys[$ -1] , "rocksdb" , "/tmp/test2" , true);
-	}
+// 	import core.thread;
+// 	import std.algorithm;
+// 	import std.stdio;
 
 
-	auto names = manger.getAllCacheNames();
-	names.sort;
-	allkeys.sort;
-	assert(allkeys.length == names.length);
+// 	CacheManger manger = new CacheManger();
 
-	void  test(UCache cache)
-	{
-		cache.put("key1" ,"value1" , 1);
-		string[string] map = ["key2":"value2" , "key3":"value3"];
-		cache.putAll(map);
+// 	//test manger.
+// 	string[] allkeys = ["memory" , "memory_l2"];
 
-		string value = cache.get("key1");
-		assert(value == "value1");
-		assert(cache.containsKey("key2"));
-		assert(!cache.putifAbsent("key1" , "value11"));
-		auto kvs = cache.getall(["key2" , "key3"]);
-		foreach(k,v ; kvs)
-		{
-			assert(map[k] == v.origin);
-		}
+// 	auto memory = manger.createCache(allkeys[0]);
+// 	auto memory_l2 = manger.createCache(allkeys[1] , "memory" , "" , true);
+
+// 	version(WITH_HUNT_REDIS)
+// 	{
+// 		allkeys ~= ["redis" ,"redis_l2"];
+
+// 		auto redis = manger.createCache(allkeys[$ - 2] , "redis" , "127.0.0.1:6379");
+// 		auto redis_l2 = manger.createCache(allkeys[$ - 1] , "redis" , "127.0.0.1:6379" , true);
+// 	}
+
+// 	version(WITH_HUNT_MEMCACHE)
+// 	{
+// 		allkeys ~= ["memcached" , "memcached_l2"];
+// 		auto memcached = manger.createCache(allkeys[$ - 2] , "memcached" , "--SERVER=127.0.0.1:11211" );
+// 		auto memcached_l2 = manger.createCache(allkeys[$ -1] , "memcached" , "--SERVER=127.0.0.1:11211" , true);
+// 	}
+
+// 	version(WITH_HUNT_ROCKSDB)
+// 	{
+// 		allkeys ~= ["rocksdb" , "rocksdb_l2"];
+// 		auto rocksdb = manger.createCache(allkeys[$ - 2] , "rocksdb" , "/tmp/test1");
+// 		auto rocksdb_l2 = manger.createCache(allkeys[$ -1] , "rocksdb" , "/tmp/test2" , true);
+// 	}
+
+
+// 	auto names = manger.getAllCacheNames();
+// 	names.sort;
+// 	allkeys.sort;
+// 	assert(allkeys.length == names.length);
+
+// 	void  test(UCache cache)
+// 	{
+// 		cache.put("key1" ,"value1" , 1);
+// 		string[string] map = ["key2":"value2" , "key3":"value3"];
+// 		cache.putAll(map);
+
+// 		string value = cache.get("key1");
+// 		assert(value == "value1");
+// 		assert(cache.containsKey("key2"));
+// 		assert(!cache.putifAbsent("key1" , "value11"));
+// 		auto kvs = cache.getall(["key2" , "key3"]);
+// 		foreach(k,v ; kvs)
+// 		{
+// 			assert(map[k] == v.origin);
+// 		}
 		
-		assert(cache.remove("key2"));
-		assert(!cache.containsKey("key2"));
-		Thread.sleep(dur!"seconds"(2));
-		assert(!cache.containsKey("key1"));
-		assert(cache.putifAbsent("key1" , "value11"));
-		cache.clear();
-		assert(!cache.containsKey("key3"));
-	}
+// 		assert(cache.remove("key2"));
+// 		assert(!cache.containsKey("key2"));
+// 		Thread.sleep(dur!"seconds"(2));
+// 		assert(!cache.containsKey("key1"));
+// 		assert(cache.putifAbsent("key1" , "value11"));
+// 		cache.clear();
+// 		assert(!cache.containsKey("key3"));
+// 	}
 
-	foreach(k ; allkeys)
-	{
-		import std.stdio;
-		writeln("test " ,k);
+// 	foreach(k ; allkeys)
+// 	{
+// 		import std.stdio;
+// 		writeln("test " ,k);
 
-		test(manger.getCache(k));
-	}
+// 		test(manger.getCache(k));
+// 	}
 
-	foreach(k ; allkeys)
-		manger.destroyCache(k);
+// 	foreach(k ; allkeys)
+// 		manger.destroyCache(k);
 
-	assert(manger.getAllCacheNames().length == 0);
+// 	assert(manger.getAllCacheNames().length == 0);
 
-}
+// }
