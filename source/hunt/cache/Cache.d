@@ -53,6 +53,8 @@ final class Cache
         }
     }
 
+    
+
     Nullable!V get(V = string) (string key)
     {
         switch(_type)
@@ -179,6 +181,7 @@ final class Cache
         }
     }
 
+
     void set(V) (string key, V v, uint expired = 0)
     {
         switch(_type)
@@ -205,6 +208,9 @@ final class Cache
                 return set!(MemoryAdapter, V)(key, v, expired);
         }
     }
+
+    deprecated("Using set instead.")
+    alias put = set;
 
     private void set(A, V) (string key, V v, uint expired = 0)
     {
