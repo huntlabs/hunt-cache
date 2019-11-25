@@ -74,7 +74,10 @@ final class Cache
                 return get!(MemoryAdapter, V)(key);
             
             case CACHE_ADAPTER.REDIS:
-                return get!(RedisAdapter, V)(key);
+                if(_option.redis.cluster.enabled) 
+                    return get!(RedisClusterAdapter, V)(key);
+                else
+                    return get!(RedisAdapter, V)(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -129,7 +132,10 @@ final class Cache
                 return get!(MemoryAdapter, V)(keys);
 
             case CACHE_ADAPTER.REDIS:
-                return get!(RedisAdapter, V)(keys);
+                if(_option.redis.cluster.enabled) 
+                    return get!(RedisClusterAdapter, V)(keys);
+                else
+                    return get!(RedisAdapter, V)(keys);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -174,7 +180,10 @@ final class Cache
                 return hasKey!MemoryAdapter(key);
 
             case CACHE_ADAPTER.REDIS:
-                return hasKey!RedisAdapter(key);
+                if(_option.redis.cluster.enabled) 
+                    return hasKey!RedisClusterAdapter(key);
+                else
+                    return hasKey!RedisAdapter(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -211,7 +220,10 @@ final class Cache
                 return set!(MemoryAdapter, V)(key, v, expired);
             
             case CACHE_ADAPTER.REDIS:
-                return set!(RedisAdapter, V)(key, v, expired);
+                if(_option.redis.cluster.enabled) 
+                    return set!(RedisClusterAdapter, V)(key, v, expired);
+                else
+                    return set!(RedisAdapter, V)(key, v, expired);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -277,7 +289,10 @@ final class Cache
             case CACHE_ADAPTER.MEMORY:
                 return set!(MemoryAdapter, V)(maps, expired);
             case CACHE_ADAPTER.REDIS:
-                return set!(RedisAdapter, V)(maps, expired);
+                if(_option.redis.cluster.enabled) 
+                    return set!(RedisClusterAdapter, V)(maps, expired);
+                else
+                    return set!(RedisAdapter, V)(maps, expired);
             case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return set!(MemcacheAdapter, V)(maps, expired);
             case CACHE_ADAPTER.ROCKSDB:
@@ -307,7 +322,10 @@ final class Cache
                 return remove!MemoryAdapter(key);
 
             case CACHE_ADAPTER.REDIS:
-                return remove!RedisAdapter(key);
+                if(_option.redis.cluster.enabled) 
+                    return remove!RedisClusterAdapter(key);
+                else
+                    return remove!RedisAdapter(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -349,7 +367,10 @@ final class Cache
                 break;
 
             case CACHE_ADAPTER.REDIS:
-                remove!RedisAdapter(keys);
+                if(_option.redis.cluster.enabled) 
+                    remove!RedisClusterAdapter(keys);
+                else
+                    remove!RedisAdapter(keys);
                 break;
 
             version(WITH_HUNT_MEMCACHE)
@@ -396,7 +417,10 @@ final class Cache
                 break;
             
             case CACHE_ADAPTER.REDIS:
-                clear!RedisAdapter();
+                if(_option.redis.cluster.enabled) 
+                    clear!RedisClusterAdapter();
+                else
+                    clear!RedisAdapter();
                 break;
 
             version(WITH_HUNT_MEMCACHE)
