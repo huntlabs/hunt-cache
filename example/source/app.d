@@ -15,7 +15,7 @@ void main() {
     option.redis.host = "10.1.222.120";
     option.redis.password = "foobared";
 
-    auto cache = CacheFectory.create(option);
+    auto cache = CacheFactory.create(option);
 
     // define key
     string key = "userinfo";

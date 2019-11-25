@@ -24,7 +24,7 @@ import std.stdio;
 
 void main()
 {
-    auto cache = CacheFectory.create();
+    auto cache = CacheFactory.create();
 
     // define key
     string key = "my_cache_key";
@@ -52,7 +52,7 @@ struct User
 
 void main()
 {
-    auto cache = CacheFectory.create();
+    auto cache = CacheFactory.create();
 
     // define key
     string key = "user_info";
@@ -85,7 +85,7 @@ void main()
     option.redis.host = "127.0.0.1";
     option.redis.port = 6379;
 
-    auto cache = CacheFectory.create(option);
+    auto cache = CacheFactory.create(option);
 
     // code for set / get ..
 }

@@ -1,31 +1,42 @@
 ﻿module hunt.cache.Cache;
 
 import hunt.cache.adapter;
+import hunt.cache.CacheOption;
 import hunt.cache.Defined;
 import hunt.cache.Nullable;
+import hunt.logging.ConsoleLogger;
 
+import std.algorithm;
+import std.array;
 import std.conv : to;
+import std.range;
 
 final class Cache
 {
-    this(Object adapterObject, MemoryAdapter memoryAdapter = null)
-    {
-        string className = to!string(typeid(adapterObject));
+    this(MemoryAdapter memoryAdapter) {
+        this(memoryAdapter, CacheOption());
+    }
 
-        if (memoryAdapter !is null && to!string(typeid(memoryAdapter)) != className)
+    this(Object adapterObject, CacheOption option, MemoryAdapter memoryAdapter = null)
+    {
+        version(HUNT_DEBUG) infof("Creating cache: [%s]", option);
+        _option = option;
+        auto className = typeid(adapterObject);
+
+        if (memoryAdapter !is null && typeid(memoryAdapter) != className)
         {
             _memoryAdapter = memoryAdapter;
             _l2enabled = true;
         }
         
-        if(className == to!string(typeid(MemoryAdapter)))
+        if(className == typeid(MemoryAdapter))
         {
             _memoryAdapter = cast(MemoryAdapter)adapterObject;
             _type = CACHE_ADAPTER.MEMORY;
             return;
         }
 
-        if(className == to!string(typeid(RedisAdapter)))
+        if(className == typeid(RedisAdapter))
         {
             _redisAdapter = cast(RedisAdapter)adapterObject;
             _type = CACHE_ADAPTER.REDIS;
@@ -34,7 +45,7 @@ final class Cache
         
         version(WITH_HUNT_MEMCACHE)
         { 
-            if(className == to!string(typeid(MemcacheAdapter)))
+            if(className == typeid(MemcacheAdapter))
             {
                 _memcacheAdapter = cast(MemcacheAdapter)(adapterObject);
                 _type = CACHE_ADAPTER.MEMCACHE_ADAPTER;
@@ -44,7 +55,7 @@ final class Cache
         
         version(WITH_HUNT_ROCKSDB)
         {
-            if(className == to!string(typeid(RocksdbAdapter)))
+            if(className == typeid(RocksdbAdapter))
             {    
                 _rocksdbAdapter = cast(RocksdbAdapter)(adapterObject);
                 _type = CACHE_ADAPTER.ROCKSDB;
@@ -84,6 +95,9 @@ final class Cache
 
     private Nullable!V get(A, V) (string key)
     {
+        if(!_option.prefix.empty())
+            key = _option.prefix ~ key;
+
         synchronized(this)
         {
             if (_l2enabled)
@@ -136,6 +150,10 @@ final class Cache
 
     private Nullable!V[string] get(A, V) (string[] keys)
     {
+        if(!_option.prefix.empty()) {
+            keys = keys.map!(k => _option.prefix ~ k)();
+        }
+
         synchronized(this)
         {
             Nullable!V[string] mapv;
@@ -175,6 +193,9 @@ final class Cache
 
     bool hasKey(A)(string key)
     {
+        if(!_option.prefix.empty())
+            key = _option.prefix ~ key;
+
         synchronized(this)
         {
             return cacheAdapter!A().hasKey(key);
@@ -214,6 +235,9 @@ final class Cache
 
     private void set(A, V) (string key, V v, uint expired = 0)
     {
+        if(!_option.prefix.empty())
+            key = _option.prefix ~ key;
+
         synchronized(this)
         {
             cacheAdapter!A().set!V(key, v, expired);
@@ -227,6 +251,9 @@ final class Cache
 
     bool setIfAbsent(V) (string key,  V v)
     {
+        if(!_option.prefix.empty())
+            key = _option.prefix ~ key;
+
         synchronized(this)
         {
             if(cacheAdapter!A().setIfAbsent!V(key, v))
@@ -299,6 +326,9 @@ final class Cache
 
     private bool remove(A)(string key)
     {
+        if(!_option.prefix.empty())
+            key = _option.prefix ~ key;
+
         synchronized(this)
         {
             auto ret = cacheAdapter!A().remove(key);
@@ -343,6 +373,10 @@ final class Cache
 
     private void remove(A)(string[] keys)
     {
+        if(!_option.prefix.empty()) {
+            keys = keys.map!(k => _option.prefix ~ k)().array();
+        }
+
         synchronized(this)
         {
              cacheAdapter!A().remove(keys);
@@ -430,6 +464,8 @@ final class Cache
         RedisAdapter _redisAdapter;
         version(WITH_HUNT_MEMCACHE) MemcacheAdapter _memcacheAdapter;
         version(WITH_HUNT_ROCKSDB) RocksdbAdapter _rocksdbAdapter;
+
+        CacheOption _option;
 
         CACHE_ADAPTER _type;
     }
