@@ -23,6 +23,7 @@ class RedisAdapter : Adapter
 
             if (!config.password.empty())
                 _redis.auth(config.password);
+            _redis.select(config.database);
         }
         catch (Exception e)
         {
@@ -33,9 +34,15 @@ class RedisAdapter : Adapter
     Nullable!V get(V) (string key)
     {
         synchronized(this)
-        {
-            string data = _redis.get(key);
-            return DeserializeToObject!V(cast(byte[])data);
+        {   
+            try {
+                string data = _redis.get(key);
+                return DeserializeToObject!V(cast(byte[])data);
+            } catch(Exception ex) {
+                warning(ex.msg);
+                version(HUNT_DEBUG) warning(ex);
+            }
+            return Nullable!V();
         }
     }
 
