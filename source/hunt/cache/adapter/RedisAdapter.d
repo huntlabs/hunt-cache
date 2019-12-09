@@ -18,12 +18,14 @@ class RedisAdapter : Adapter
     {
         try
         {
-            _redis = new Redis(config.host, config.port);
-            _redis.connect();
+            RedisPoolConfig poolConfig = new RedisPoolConfig();
+            poolConfig.host = config.host;
+            poolConfig.port = config.port;
+            poolConfig.soTimeout = config.timeout;
+            poolConfig.database = config.database;
+            poolConfig.password = config.password;
 
-            if (!config.password.empty())
-                _redis.auth(config.password);
-            _redis.select(config.database);
+            defalutPoolConfig = poolConfig;
         }
         catch (Exception e)
         {
@@ -33,7 +35,9 @@ class RedisAdapter : Adapter
 
     Nullable!V get(V) (string key)
     {
-        synchronized(this)
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+        // synchronized(this)
         {   
             try {
                 string data = _redis.get(key);
@@ -48,7 +52,9 @@ class RedisAdapter : Adapter
 
     Nullable!V[string] getAll(V) (string[] keys)
     {
-        synchronized(this)
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+        // synchronized(this)
         {
             Nullable!V[string] mapv;
             if( keys.length == 0)
@@ -67,7 +73,9 @@ class RedisAdapter : Adapter
 
     bool hasKey(string key)
     {
-        synchronized(this)
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+        // synchronized(this)
         {
             return _redis.exists(key);
         }
@@ -75,7 +83,10 @@ class RedisAdapter : Adapter
 
     void set(V) (string key,  V v, uint expired)
     {
-        synchronized(this)
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+
+        // synchronized(this)
         {
             if( expired == 0)
                 _redis.set(key, cast(string)SerializeToByte(v));
@@ -86,7 +97,9 @@ class RedisAdapter : Adapter
 
     bool setIfAbsent(V) (string key,  V v)
     {
-        synchronized(this)
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+        // synchronized(this)
         {
             return _redis.setnx(key, cast(string)SerializeToByte(v)) == 1;        
         }
@@ -94,10 +107,13 @@ class RedisAdapter : Adapter
 
     void set(V) (V[string] maps, uint expired)
     {
-        synchronized(this)
+        if(maps.length == 0)
+            return;
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+
+        // synchronized(this)
         {
-            if(maps.length == 0)
-                return;
 
             if(expired == 0)
             {
@@ -115,7 +131,10 @@ class RedisAdapter : Adapter
 
     bool remove(string key)
     {
-        synchronized(this)
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+
+        // synchronized(this)
         {
             return _redis.del(key) > 0;
         }
@@ -123,25 +142,33 @@ class RedisAdapter : Adapter
 
     void remove(string[] keys)
     {
-        synchronized(this)
-        {
-            if( keys.length == 0)
-                return ;
+        if( keys.length == 0)
+            return ;
 
-            foreach(key ; keys){
-                _redis.del(key);
-            }
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+
+        foreach(key ; keys){
+            _redis.del(key);
         }
+   
     }
 
     void clear()
     {
-        synchronized(this)
-        {
-            _redis.flushAll();
-        }
+        Redis _redis = redis();
+        scope(exit) _redis.close();
+        _redis.flushAll();
+
+        // synchronized(this)
+        // {
+        //     _redis.flushAll();
+        // }
     }
 
 protected:
-    Redis _redis;
+    // Redis _redis;
+    Redis redis() {
+        return defaultRedisPool().getResource();
+    }
 }
