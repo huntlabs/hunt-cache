@@ -1,16 +1,11 @@
 module hunt.cache.CacheOption;
 
 import hunt.cache.Defined;
+import hunt.redis.RedisPoolConfig;
 
 import std.format;
 import std.range;
 
-// TODO: Tasks pending completion -@zhangxueping at 2019-11-25T16:35:09+08:00
-// 
-struct ClusterOption {
-    bool enabled = false;
-    string[] nodes;
-}
 
 struct CacheOption
 {
