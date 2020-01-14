@@ -41,6 +41,11 @@ class UCache
 	mixin(genfunc("void clear()" , "clear();"));
 
 
+	alias set = put;
+	alias hasKey = containsKey;
+	mixin(genfunc("void	remove(string[] keys)" , "removeAll(keys);"));
+	
+
 	static UCache CreateUCache(string driverName = "memory"  , 
 		string args = ""  , bool enableL2  = false )
 	{
