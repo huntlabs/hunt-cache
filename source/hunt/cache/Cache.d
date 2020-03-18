@@ -101,6 +101,8 @@ final class Cache
         if(!_option.prefix.empty())
             key = _option.prefix ~ key;
 
+        version(HUNT_FM_DEBUG) trace("key: ", key);
+
         synchronized(this)
         {
             if (_l2enabled)
@@ -242,13 +244,12 @@ final class Cache
         }
     }
 
-    deprecated("Using set instead.")
-    alias put = set;
-
     private void set(A, V) (string key, V v, uint expired = 0)
     {
         if(!_option.prefix.empty())
             key = _option.prefix ~ key;
+
+        version(HUNT_FM_DEBUG) trace("key: ", key);
 
         synchronized(this)
         {

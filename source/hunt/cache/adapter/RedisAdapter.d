@@ -35,6 +35,8 @@ class RedisAdapter : Adapter
 
     Nullable!V get(V) (string key)
     {
+        version(HUNT_FM_DEBUG) trace("key: ", key);
+
         Redis _redis = redis();
         scope(exit) _redis.close();
         // synchronized(this)
@@ -83,6 +85,8 @@ class RedisAdapter : Adapter
 
     void set(V) (string key,  V v, uint expired)
     {
+        version(HUNT_DEBUG) trace("key: ", key);
+
         Redis _redis = redis();
         scope(exit) _redis.close();
 
