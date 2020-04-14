@@ -10,8 +10,6 @@ import std.range;
 struct CacheOption
 {
     string adapter = "memory";
-    // CACHE_ADAPTER adapter = CACHE_ADAPTER.MEMORY;
-
     string prefix = "";
 
     bool useSecondLevelCache = false;
@@ -33,14 +31,30 @@ struct CacheOption
         long size = 65535;
         bool persisted = false; // dependency RocksDB conf
     }
+    
+    struct RedisPoolConf {
+        bool enabled = false;
+
+        bool blockOnExhausted = true;
+        uint idleTimeout = 30000; // millisecond
+        uint maxPoolSize = 20;
+        uint minPoolSize = 5;
+        uint maxLifetime = 2000000;
+        uint connectionTimeout = 15000;
+        int waitTimeout = 15000; // -1: forever
+        uint maxConnection = 20;
+        uint minConnection = 5;        
+    }
 
     struct RedisConf
     {
         string host = "127.0.0.1";
-        ushort port = 6379;
         string password = "";
         ushort database = 0;
-        uint timeout = 0;
+        ushort port = 6379;
+        uint timeout = 5000;
+        
+        RedisPoolConf pool;
         ClusterOption cluster;
         
         string toString() {
