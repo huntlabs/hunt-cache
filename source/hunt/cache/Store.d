@@ -1,36 +1,28 @@
 ﻿module hunt.cache.Store;
 
-import hunt.util.Serialize;
-
 import hunt.cache.Nullable;
+import hunt.logging.ConsoleLogger;
 
-// only add header from Serialize for check meta info.
-// meta
-// object
+// import hunt.util.Serialize;
+import hunt.serialization.BinarySerialization;
 
-import std.stdio;
-
-byte[] SerializeToByte(T) (T t)
-{
-    import std.stdio;
-    string meta = immutable(T).stringof;
-
-    return serialize(meta[10 .. $-1]) ~ serialize(t);
+byte[] SerializeToByte(T)(T t) {
+    auto data = cast(byte[]) serialize(t);
+    version (HUNT_CACHE_DEBUG)
+        tracef("%s", data);
+    return data;
 }
 
-Nullable!T DeserializeToObject(T) (const byte[] data )
-{
-    long parser_index;
-    if(data.length == 0)
-        return Nullable!T.init;
+Nullable!T DeserializeToObject(T)(const byte[] data) {
+    T obj = unserialize!(T)(cast(ubyte[]) data);
 
-    string meta = unserialize!string(data, parser_index);
-    if(immutable(T).stringof[10 .. $-1] != meta)
-        return Nullable!T.init;
+    version (HUNT_CACHE_DEBUG) {
+        warningf("%s", data);
+        tracef("obj: %s, %s", T.stringof, obj);
+    }
 
     Nullable!T nullt;
-
-    nullt.bind(unserialize!T(data[cast(size_t)parser_index .. $]));
+    nullt.bind(obj);
 
     return nullt;
 }
