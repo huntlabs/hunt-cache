@@ -28,7 +28,7 @@ class RedisAdapter : Adapter
 
     Nullable!V get(V) (string key)
     {
-        version(HUNT_FM_DEBUG) trace("key: ", key);
+        version(HUNT_CACHE_DEBUG) trace("key: ", key);
 
         Redis _redis = redis();
         scope(exit) _redis.close();
