@@ -1,14 +1,13 @@
 ﻿module hunt.cache.CacheFactory;
 
 import hunt.cache.Cache;
-import hunt.cache.CacheOption;
+import hunt.cache.CacheOptions;
 import hunt.cache.Defined;
 import hunt.cache.adapter;
 
-
-deprecated("Using CacheFactory instead.")
-alias CacheFectory = CacheFactory;
-
+/**
+ * 
+ */
 class CacheFactory
 {
     static Cache create()
@@ -16,7 +15,7 @@ class CacheFactory
         return new Cache(new MemoryAdapter);
     }
 
-    static Cache create(ref CacheOption option)
+    static Cache create(CacheOptions option)
     {
         MemoryAdapter memoryAdapter;
         if (option.useSecondLevelCache || option.adapter == AdapterType.MEMORY)
@@ -30,10 +29,10 @@ class CacheFactory
                 return new Cache(memoryAdapter, option);
 
             case AdapterType.REDIS:
-                if(option.redis.cluster.enabled) {
-                    return new Cache(new RedisClusterAdapter(option.redis), option, memoryAdapter);
+                if(option.redisCluster.enabled) {
+                    return new Cache(new RedisClusterAdapter(option.redisPool), option, memoryAdapter);
                 } else {
-                    return new Cache(new RedisAdapter(option.redis), option, memoryAdapter);
+                    return new Cache(new RedisAdapter(option.redisPool), option, memoryAdapter);
                 }
 
             version(WITH_HUNT_MEMCACHE)

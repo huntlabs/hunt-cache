@@ -1,7 +1,7 @@
 ﻿module hunt.cache.adapter.RedisAdapter;
 
 import hunt.cache.adapter.Adapter;
-import hunt.cache.CacheOption;
+import hunt.cache.CacheOptions;
 import hunt.cache.Nullable;
 import hunt.cache.Store;
 
@@ -14,18 +14,11 @@ import std.string;
 
 class RedisAdapter : Adapter
 {
-    this(CacheOption.RedisConf config)
+    this(RedisPoolConfig config)
     {
         try
         {
-            RedisPoolConfig poolConfig = new RedisPoolConfig();
-            poolConfig.host = config.host;
-            poolConfig.port = config.port;
-            poolConfig.soTimeout = config.timeout;
-            poolConfig.database = config.database;
-            poolConfig.password = config.password;
-
-            defalutPoolConfig = poolConfig;
+            defalutPoolConfig = config;
         }
         catch (Exception e)
         {

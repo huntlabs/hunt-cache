@@ -8,7 +8,7 @@ import hunt.cache.Nullable;
 version(WITH_HUNT_MEMCACHE):
 
 import memcache.memcache;
-import hunt.cache.CacheOption;
+import hunt.cache.CacheOptions;
 
 class MemcacheAdapter : Adapter
 {
@@ -106,7 +106,7 @@ class MemcacheAdapter : Adapter
         }
     }
 
-    this(CacheOption.MemcacheConf config)
+    this(CacheOptions.MemcacheConf config)
     {
         import std.conv : to;
 

@@ -1,7 +1,7 @@
 ﻿module hunt.cache.adapter.RedisClusterAdapter;
 
 import hunt.cache.adapter.Adapter;
-import hunt.cache.CacheOption;
+import hunt.cache.CacheOptions;
 import hunt.cache.Nullable;
 import hunt.cache.Store;
 
@@ -15,7 +15,7 @@ import std.string;
 
 class RedisClusterAdapter : Adapter
 {
-    this(CacheOption.RedisConf config)
+    this(RedisPoolConfig config)
     {
         try
         {            
