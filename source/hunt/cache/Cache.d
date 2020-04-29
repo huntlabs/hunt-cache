@@ -244,6 +244,9 @@ final class Cache
         }
     }
 
+    deprecated("Using set instead.")
+    alias put = set;
+
     private void set(A, V) (string key, V v, uint expired = 0)
     {
         if(!_option.prefix.empty())
