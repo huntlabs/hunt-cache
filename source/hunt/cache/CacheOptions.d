@@ -19,6 +19,7 @@ class CacheOptions {
     string adapter = ADAPTER_MEMORY;
     string prefix = "";
 
+    bool isRedisClusterEnabled = false;
     bool useSecondLevelCache = false;
     uint maxEntriesLocalHeap = 10000;
     bool eternal = false;
@@ -33,7 +34,7 @@ class CacheOptions {
         redisPool = new RedisPoolConfig();
     }
 
-    ClusterOption redisCluster;
+    RedisClusterConfig redisCluster;
     RedisPoolConfig redisPool;
     MemcacheConf memcache;
     RocksdbConf rocksdb;

@@ -29,7 +29,7 @@ class CacheFactory
                 return new Cache(memoryAdapter, option);
 
             case AdapterType.REDIS:
-                if(option.redisCluster.enabled) {
+                if(option.isRedisClusterEnabled) {
                     return new Cache(new RedisClusterAdapter(option.redisPool), option, memoryAdapter);
                 } else {
                     return new Cache(new RedisAdapter(option.redisPool), option, memoryAdapter);
