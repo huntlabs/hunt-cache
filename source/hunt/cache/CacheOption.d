@@ -34,6 +34,11 @@ struct CacheOption
         bool persisted = false; // dependency RocksDB conf
     }
 
+    struct ClusterOption {
+        string[] nodes;
+        bool enabled;
+    }
+
     struct RedisConf
     {
         string host = "127.0.0.1";
