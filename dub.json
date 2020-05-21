@@ -7,7 +7,7 @@
     "license": "Apache-2.0",
     "versions": ["WITH_HUNT_CACHE"],
     "dependencies": {
-        "hunt-redis": {"version" :"~>1.1.4" }
+        "hunt-redis":  "~>1.2.0"
     }, 
     "configurations":[
         {
