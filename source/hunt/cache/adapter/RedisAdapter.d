@@ -10,6 +10,7 @@ import hunt.redis;
 
 import std.array;
 import std.conv;
+import std.range;
 import std.string;
 
 class RedisAdapter : Adapter
@@ -36,8 +37,9 @@ class RedisAdapter : Adapter
         {   
             try {
                 string data = _redis.get(key);
+                if(data.empty) return Nullable!V();
                 return DeserializeToObject!V(cast(byte[])data);
-            } catch(Exception ex) {
+            } catch(Throwable ex) {
                 warning(ex.msg);
                 version(HUNT_DEBUG) warning(ex);
             }
