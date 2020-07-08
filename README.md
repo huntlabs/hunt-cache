@@ -5,13 +5,6 @@ Universal cache library for D programming language.
 ## Support backend
  * memory
  * redis
- * libmemcached
-
-## Versions
- * WITH_HUNT_CACHE
- * WITH_HUNT_REDIS
- * WITH_HUNT_MEMCACHE
- * WITH_HUNT_ROCKSDB
 
 ## Tips
 Default support memory and redis drivers.
