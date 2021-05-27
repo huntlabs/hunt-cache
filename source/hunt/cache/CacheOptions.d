@@ -20,6 +20,7 @@ class CacheOptions {
     string prefix = "";
 
     bool isRedisClusterEnabled = false;
+    
     bool useSecondLevelCache = false;
     uint maxEntriesLocalHeap = 10000;
     bool eternal = false;

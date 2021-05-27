@@ -43,6 +43,13 @@ final class Cache
             return;
         }
         
+        if(className == typeid(RedisClusterAdapter))
+        {
+            _redisClusterAdapter = cast(RedisClusterAdapter)adapterObject;
+            _type = CACHE_ADAPTER.REDIS_CLUSTER;
+            return;
+        }
+
         version(WITH_HUNT_MEMCACHE)
         { 
             if(className == typeid(MemcacheAdapter))
@@ -74,10 +81,10 @@ final class Cache
                 return get!(MemoryAdapter, V)(key);
             
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    return get!(RedisClusterAdapter, V)(key);
-                else
-                    return get!(RedisAdapter, V)(key);
+                return get!(RedisAdapter, V)(key);
+            
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                return get!(RedisClusterAdapter, V)(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -134,10 +141,10 @@ final class Cache
                 return get!(MemoryAdapter, V)(keys);
 
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    return get!(RedisClusterAdapter, V)(keys);
-                else
-                    return get!(RedisAdapter, V)(keys);
+                return get!(RedisAdapter, V)(keys);
+
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                return get!(RedisClusterAdapter, V)(keys);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -182,10 +189,10 @@ final class Cache
                 return hasKey!MemoryAdapter(key);
 
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    return hasKey!RedisClusterAdapter(key);
-                else
-                    return hasKey!RedisAdapter(key);
+                return hasKey!RedisAdapter(key);
+
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                return hasKey!RedisClusterAdapter(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -222,10 +229,10 @@ final class Cache
                 return set!(MemoryAdapter, V)(key, v, expired);
             
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    return set!(RedisClusterAdapter, V)(key, v, expired);
-                else
-                    return set!(RedisAdapter, V)(key, v, expired);
+                return set!(RedisAdapter, V)(key, v, expired);
+            
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                return set!(RedisClusterAdapter, V)(key, v, expired);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -289,11 +296,13 @@ final class Cache
         {
             case CACHE_ADAPTER.MEMORY:
                 return set!(MemoryAdapter, V)(maps, expired);
+
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    return set!(RedisClusterAdapter, V)(maps, expired);
-                else
-                    return set!(RedisAdapter, V)(maps, expired);
+                return set!(RedisAdapter, V)(maps, expired);
+
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                return set!(RedisClusterAdapter, V)(maps, expired);
+
             case CACHE_ADAPTER.MEMCACHE_ADAPTER:
                 return set!(MemcacheAdapter, V)(maps, expired);
             case CACHE_ADAPTER.ROCKSDB:
@@ -323,10 +332,10 @@ final class Cache
                 return remove!MemoryAdapter(key);
 
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    return remove!RedisClusterAdapter(key);
-                else
-                    return remove!RedisAdapter(key);
+                return remove!RedisAdapter(key);
+
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                return remove!RedisClusterAdapter(key);
 
             version(WITH_HUNT_MEMCACHE)
             {
@@ -368,10 +377,11 @@ final class Cache
                 break;
 
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    remove!RedisClusterAdapter(keys);
-                else
-                    remove!RedisAdapter(keys);
+                remove!RedisAdapter(keys);
+                break;
+
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                remove!RedisClusterAdapter(keys);
                 break;
 
             version(WITH_HUNT_MEMCACHE)
@@ -418,10 +428,11 @@ final class Cache
                 break;
             
             case CACHE_ADAPTER.REDIS:
-                if(_option.isRedisClusterEnabled) 
-                    clear!RedisClusterAdapter();
-                else
-                    clear!RedisAdapter();
+                clear!RedisAdapter();
+                break;
+
+            case CACHE_ADAPTER.REDIS_CLUSTER:
+                clear!RedisClusterAdapter();
                 break;
 
             version(WITH_HUNT_MEMCACHE)
@@ -487,6 +498,7 @@ final class Cache
 
         MemoryAdapter _memoryAdapter;
         RedisAdapter _redisAdapter;
+        RedisClusterAdapter _redisClusterAdapter;
         version(WITH_HUNT_MEMCACHE) MemcacheAdapter _memcacheAdapter;
         version(WITH_HUNT_ROCKSDB) RocksdbAdapter _rocksdbAdapter;
 

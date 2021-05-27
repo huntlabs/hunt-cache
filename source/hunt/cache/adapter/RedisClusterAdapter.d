@@ -5,6 +5,8 @@ import hunt.cache.CacheOptions;
 import hunt.cache.Nullable;
 import hunt.cache.Store;
 
+import hunt.collection.HashSet;
+import hunt.collection.Set;
 import hunt.Exceptions;
 import hunt.logging;
 import hunt.redis;
@@ -15,21 +17,45 @@ import std.string;
 
 class RedisClusterAdapter : Adapter
 {
-    this(RedisPoolConfig config)
+    this(RedisPoolConfig poolConfig, RedisClusterConfig clusterConfig)
     {
-        try
-        {            
-            _redis = new RedisCluster(new HostAndPort(config.host, config.port));
-            // _redis.connect();
+        // try
+        // {            
+        //     _redis = new RedisCluster(new HostAndPort(poolConfig.host, poolConfig.port));
 
-            // if (!config.password.empty())
-            //     _redis.auth(config.password);
-            // _redis.select(config.database);
+        //     // if (!poolConfig.password.empty())
+        //     //     _redis.auth(poolConfig.password);
+        //     // _redis.select(poolConfig.database);
+        // }
+        // catch (Exception e)
+        // {
+        //     logError(e);
+        // }
+
+        Set!(HostAndPort) clusterNode = new HashSet!(HostAndPort)();
+        string[] hostPorts = clusterConfig.nodes;
+        
+        foreach(string item; hostPorts) {
+            string[] hostPort = item.split(":");
+            if(hostPort.length < 2) {
+                warningf("Wrong host and port: %s", item);
+                continue;
+            }
+
+            version(HUNT_DEBUG) {
+                tracef("Cluster host: %s", hostPort);
+            }
+
+            try {
+                int port = to!int(hostPort[1]);
+                clusterNode.add(new HostAndPort(hostPort[0], port));
+            } catch(Exception ex) {
+                warning(ex);
+            }
         }
-        catch (Exception e)
-        {
-            logError(e);
-        }
+
+        _redis = new RedisCluster(clusterNode, poolConfig.connectionTimeout, poolConfig.soTimeout, 
+                clusterConfig.redirections, poolConfig.password, poolConfig);
     }
 
     Nullable!V get(V) (string key)

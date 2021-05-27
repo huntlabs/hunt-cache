@@ -29,11 +29,10 @@ class CacheFactory
                 return new Cache(memoryAdapter, option);
 
             case AdapterType.REDIS:
-                if(option.isRedisClusterEnabled) {
-                    return new Cache(new RedisClusterAdapter(option.redisPool), option, memoryAdapter);
-                } else {
-                    return new Cache(new RedisAdapter(option.redisPool), option, memoryAdapter);
-                }
+                return new Cache(new RedisAdapter(option.redisPool), option, memoryAdapter);
+
+            case AdapterType.REDIS_CLUSTER:
+                return new Cache(new RedisClusterAdapter(option.redisPool, option.redisCluster), option, memoryAdapter);
 
             version(WITH_HUNT_MEMCACHE)
             {
