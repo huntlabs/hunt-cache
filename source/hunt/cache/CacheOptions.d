@@ -1,7 +1,7 @@
 module hunt.cache.CacheOptions;
 
 import hunt.cache.Defined;
-import hunt.redis.RedisPoolConfig;
+import hunt.redis.RedisPoolOptions;
 
 import std.format;
 import std.range;
@@ -32,11 +32,11 @@ class CacheOptions {
     uint maxEntriesLocalDisk = 10000;
 
     this() {
-        redisPool = new RedisPoolConfig();
+        redisPool = new RedisPoolOptions();
     }
 
     RedisClusterConfig redisCluster;
-    RedisPoolConfig redisPool;
+    RedisPoolOptions redisPool;
     MemcacheConf memcache;
     RocksdbConf rocksdb;
 

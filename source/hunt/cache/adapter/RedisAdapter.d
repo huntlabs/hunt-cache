@@ -15,16 +15,9 @@ import std.string;
 
 class RedisAdapter : Adapter
 {
-    this(RedisPoolConfig config)
+    this(RedisPoolOptions config)
     {
-        try
-        {
-            defalutPoolConfig = config;
-        }
-        catch (Exception e)
-        {
-            logError(e);
-        }
+        defalutPoolConfig = config;
     }
 
     Nullable!V get(V) (string key)
@@ -168,6 +161,6 @@ class RedisAdapter : Adapter
 protected:
     // Redis _redis;
     Redis redis() {
-        return defaultRedisPool().getResource();
+        return defaultRedisPool().borrow();
     }
 }

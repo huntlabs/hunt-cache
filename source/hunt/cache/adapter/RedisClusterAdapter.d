@@ -17,7 +17,7 @@ import std.string;
 
 class RedisClusterAdapter : Adapter
 {
-    this(RedisPoolConfig poolConfig, RedisClusterConfig clusterConfig)
+    this(RedisPoolOptions poolConfig, RedisClusterConfig clusterConfig)
     {
         // try
         // {            
@@ -32,7 +32,7 @@ class RedisClusterAdapter : Adapter
         //     logError(e);
         // }
 
-        Set!(HostAndPort) clusterNode = new HashSet!(HostAndPort)();
+        HostAndPort[] clusterNode;
         string[] hostPorts = clusterConfig.nodes;
         
         foreach(string item; hostPorts) {
@@ -48,14 +48,13 @@ class RedisClusterAdapter : Adapter
 
             try {
                 int port = to!int(hostPort[1]);
-                clusterNode.add(new HostAndPort(hostPort[0], port));
+                clusterNode ~= new HostAndPort(hostPort[0], port);
             } catch(Exception ex) {
                 warning(ex);
             }
         }
 
-        _redis = new RedisCluster(clusterNode, poolConfig.connectionTimeout, poolConfig.soTimeout, 
-                clusterConfig.redirections, poolConfig.password, poolConfig);
+        _redis = new RedisCluster(clusterNode, poolConfig);
     }
 
     Nullable!V get(V) (string key)
