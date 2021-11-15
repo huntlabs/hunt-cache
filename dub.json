@@ -8,16 +8,5 @@
     "versions": ["WITH_HUNT_CACHE"],
     "dependencies": {
         "hunt-redis":  "~>1.2.0"
-    }, 
-    "configurations":[
-        {
-            "name":"default"
-        },
-        {
-            "name":"normal",
-            "dependencies": {
-                "libmemcached": {"version":"~>1.1.1"}
-            }
-        }
-    ]
+    }
 }
