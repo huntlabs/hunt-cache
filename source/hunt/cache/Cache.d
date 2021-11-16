@@ -50,15 +50,15 @@ final class Cache
             return;
         }
 
-        version(WITH_HUNT_MEMCACHE)
-        { 
-            if(className == typeid(MemcacheAdapter))
-            {
-                _memcacheAdapter = cast(MemcacheAdapter)(adapterObject);
-                _type = CACHE_ADAPTER.MEMCACHE_ADAPTER;
-                return;
-            }
-        }
+        // version(WITH_HUNT_MEMCACHE)
+        // { 
+        //     if(className == typeid(MemcacheAdapter))
+        //     {
+        //         _memcacheAdapter = cast(MemcacheAdapter)(adapterObject);
+        //         _type = CACHE_ADAPTER.MEMCACHE_ADAPTER;
+        //         return;
+        //     }
+        // }
         
         version(WITH_HUNT_ROCKSDB)
         {
@@ -86,11 +86,11 @@ final class Cache
             case CACHE_ADAPTER.REDIS_CLUSTER:
                 return get!(RedisClusterAdapter, V)(key);
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                return get!(MemcacheAdapter, V)(key);
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     return get!(MemcacheAdapter, V)(key);
+            // }
 
             version(WITH_HUNT_ROCKSDB)
             {
@@ -146,11 +146,11 @@ final class Cache
             case CACHE_ADAPTER.REDIS_CLUSTER:
                 return get!(RedisClusterAdapter, V)(keys);
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                return get!(MemcacheAdapter, V)(keys);
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     return get!(MemcacheAdapter, V)(keys);
+            // }
 
             version(WITH_HUNT_ROCKSDB)
             {
@@ -194,12 +194,12 @@ final class Cache
             case CACHE_ADAPTER.REDIS_CLUSTER:
                 return hasKey!RedisClusterAdapter(key);
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                return hasKey!MemcacheAdapter(key);
-            }
-            version(WITH_HUNT_MEMCACHE)
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     return hasKey!MemcacheAdapter(key);
+            // }
+            version(WITH_HUNT_ROCKSDB)
             {
             case CACHE_ADAPTER.ROCKSDB:
                 return hasKey!RocksdbAdapter(key);
@@ -234,11 +234,11 @@ final class Cache
             case CACHE_ADAPTER.REDIS_CLUSTER:
                 return set!(RedisClusterAdapter, V)(key, v, expired);
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                return set!(MemcacheAdapter, V)(key, v, expired);
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     return set!(MemcacheAdapter, V)(key, v, expired);
+            // }
 
             version(WITH_HUNT_ROCKSDB)
             {
@@ -337,12 +337,12 @@ final class Cache
             case CACHE_ADAPTER.REDIS_CLUSTER:
                 return remove!RedisClusterAdapter(key);
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                return remove!MemcacheAdapter(key);
-            }
-            version(WITH_HUNT_MEMCACHE)
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     return remove!MemcacheAdapter(key);
+            // }
+            version(WITH_HUNT_ROCKSDB)
             {
             case CACHE_ADAPTER.ROCKSDB:
                 return remove!RocksdbAdapter(key);
@@ -384,12 +384,12 @@ final class Cache
                 remove!RedisClusterAdapter(keys);
                 break;
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                remove!MemcacheAdapter(keys);
-                break;
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     remove!MemcacheAdapter(keys);
+            //     break;
+            // }
 
             version(WITH_HUNT_ROCKSDB)
             {
@@ -435,12 +435,12 @@ final class Cache
                 clear!RedisClusterAdapter();
                 break;
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                clear!MemcacheAdapter();
-                break;
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     clear!MemcacheAdapter();
+            //     break;
+            // }
 
             version(WITH_HUNT_ROCKSDB)
             {
@@ -477,11 +477,11 @@ final class Cache
             case CACHE_ADAPTER.REDIS:
                 return cast(A)_redisAdapter;
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-            case CACHE_ADAPTER.MEMCACHE_ADAPTER:
-                return cast(A)_memcacheAdapter;
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            // case CACHE_ADAPTER.MEMCACHE_ADAPTER:
+            //     return cast(A)_memcacheAdapter;
+            // }
             version(WITH_HUNT_ROCKSDB)
             {
             case CACHE_ADAPTER.ROCKSDB:
@@ -499,7 +499,7 @@ final class Cache
         MemoryAdapter _memoryAdapter;
         RedisAdapter _redisAdapter;
         RedisClusterAdapter _redisClusterAdapter;
-        version(WITH_HUNT_MEMCACHE) MemcacheAdapter _memcacheAdapter;
+        // version(WITH_HUNT_MEMCACHE) MemcacheAdapter _memcacheAdapter;
         version(WITH_HUNT_ROCKSDB) RocksdbAdapter _rocksdbAdapter;
 
         CacheOptions _option;

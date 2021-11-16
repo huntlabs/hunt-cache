@@ -34,11 +34,11 @@ class CacheFactory
             case AdapterType.REDIS_CLUSTER:
                 return new Cache(new RedisClusterAdapter(option.redisPool, option.redisCluster), option, memoryAdapter);
 
-            version(WITH_HUNT_MEMCACHE)
-            {
-                case AdapterType.MEMCACHE:
-                return new Cache(new MemcacheAdapter(option.memcache), option, memoryAdapter);
-            }
+            // version(WITH_HUNT_MEMCACHE)
+            // {
+            //     case AdapterType.MEMCACHE:
+            //     return new Cache(new MemcacheAdapter(option.memcache), option, memoryAdapter);
+            // }
             version(WITH_HUNT_ROCKSDB)
             {
                 case AdapterType.ROCKSDB:
