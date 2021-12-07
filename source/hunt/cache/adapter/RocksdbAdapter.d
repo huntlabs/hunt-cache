@@ -6,7 +6,7 @@ version (WITH_HUNT_ROCKSDB)  :
 
 import hunt.cache.adapter.Adapter;
 import hunt.cache.Store;
-import hunt.cache.CacheOption;
+import hunt.cache.CacheOptions;
 
 import core.time;
 import core.stdc.time;
@@ -21,7 +21,7 @@ import rocksdb;
 
 class RocksdbAdapter : Adapter
 {
-    this(CacheOption.rocksdb config)
+    this(CacheOptions.rocksdb config)
     {
         create(config.file);
     }

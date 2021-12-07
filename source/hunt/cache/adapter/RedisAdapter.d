@@ -1,7 +1,7 @@
 ﻿module hunt.cache.adapter.RedisAdapter;
 
 import hunt.cache.adapter.Adapter;
-import hunt.cache.CacheOption;
+import hunt.cache.CacheOptions;
 import hunt.cache.Nullable;
 import hunt.cache.Store;
 
@@ -10,32 +10,19 @@ import hunt.redis;
 
 import std.array;
 import std.conv;
+import std.range;
 import std.string;
 
 class RedisAdapter : Adapter
 {
-    this(CacheOption.RedisConf config)
+    this(RedisPoolOptions config)
     {
-        try
-        {
-            RedisPoolConfig poolConfig = new RedisPoolConfig();
-            poolConfig.host = config.host;
-            poolConfig.port = config.port;
-            poolConfig.soTimeout = config.timeout;
-            poolConfig.database = config.database;
-            poolConfig.password = config.password;
-
-            defalutPoolConfig = poolConfig;
-        }
-        catch (Exception e)
-        {
-            logError(e);
-        }
+        defalutPoolConfig = config;
     }
 
     Nullable!V get(V) (string key)
     {
-        version(HUNT_FM_DEBUG) trace("key: ", key);
+        version(HUNT_CACHE_DEBUG) trace("key: ", key);
 
         Redis _redis = redis();
         scope(exit) _redis.close();
@@ -43,8 +30,9 @@ class RedisAdapter : Adapter
         {   
             try {
                 string data = _redis.get(key);
+                if(data.empty) return Nullable!V();
                 return DeserializeToObject!V(cast(byte[])data);
-            } catch(Exception ex) {
+            } catch(Throwable ex) {
                 warning(ex.msg);
                 version(HUNT_DEBUG) warning(ex);
             }
@@ -173,6 +161,6 @@ class RedisAdapter : Adapter
 protected:
     // Redis _redis;
     Redis redis() {
-        return defaultRedisPool().getResource();
+        return defaultRedisPool().borrow();
     }
 }
