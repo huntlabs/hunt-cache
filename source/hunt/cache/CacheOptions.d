@@ -32,11 +32,11 @@ class CacheOptions {
     uint maxEntriesLocalDisk = 10000;
 
     this() {
-        redisPool = new RedisPoolOptions();
+        redis = new RedisPoolOptions();
     }
 
     RedisClusterConfig redisCluster;
-    RedisPoolOptions redisPool;
+    RedisPoolOptions redis;
     MemcacheConf memcache;
     RocksdbConf rocksdb;
 
@@ -62,7 +62,7 @@ class CacheOptions {
     override string toString() {
         if (adapter == ADAPTER_MEMORY) {
             return format("adapter: %s, prefix: %s, Redis: {%s}", adapter,
-                    prefix, redisPool.toString());
+                    prefix, redis.toString());
         } else if (adapter == ADAPTER_MEMCACHE) {
             return format("adapter: %s, prefix: %s, Memcache: {%s}", adapter,
                     prefix, memcache.toString());
