@@ -15,16 +15,5 @@
 		"hunt-openssl": "~>1.0.5",
 		"hunt-pool": "~>1.0.0",
         "hunt-redis": "~>1.1.6"
-    }, 
-    "configurations":[
-        {
-            "name":"default"
-        },
-        {
-            "name":"normal",
-            "dependencies": {
-                "libmemcached": {"version":"~>1.1.1"}
-            }
-        }
-    ]
+    }
 }

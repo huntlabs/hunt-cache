@@ -10,7 +10,7 @@ struct User {
 }
 
 void main() {
-    CacheOption option;
+    CacheOptions option = new CacheOptions();
     option.adapter = AdapterType.MEMORY;
     option.redis.host = "10.1.222.120";
     option.redis.password = "foobared";
